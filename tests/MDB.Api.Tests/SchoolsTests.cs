@@ -10,6 +10,20 @@ namespace MDB.Api.Tests;
 public sealed class SchoolsTests(ApiFixture fixture)
 {
     [Fact]
+    public async Task Account_details_expose_platform_admin_role_only_for_admin()
+    {
+        using var admin = await fixture.CreateAdminClientAsync();
+        var adminAccount = await admin.GetFromJsonAsync<AccountResponse>("/api/me");
+        Assert.NotNull(adminAccount);
+        Assert.Contains(PlatformRoles.Admin, adminAccount.Roles);
+
+        using var student = await fixture.CreateStudentClientAsync();
+        var studentAccount = await student.GetFromJsonAsync<AccountResponse>("/api/me");
+        Assert.NotNull(studentAccount);
+        Assert.DoesNotContain(PlatformRoles.Admin, studentAccount.Roles);
+    }
+
+    [Fact]
     public async Task Seeded_admin_can_create_and_retrieve_school()
     {
         using var client = await fixture.CreateAdminClientAsync();
@@ -32,6 +46,7 @@ public sealed class SchoolsTests(ApiFixture fixture)
         using var client = fixture.CreateClient();
         var create = await client.PostAsJsonAsync("/api/schools", new { name = "School", slug = "school" });
         Assert.Equal(HttpStatusCode.Unauthorized, create.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/schools")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync($"/api/schools/{Guid.NewGuid()}")).StatusCode);
     }
 
@@ -59,7 +74,25 @@ public sealed class SchoolsTests(ApiFixture fixture)
         using var client = await fixture.CreateStudentClientAsync();
         var create = await client.PostAsJsonAsync("/api/schools", new { name = "School", slug = "school" });
         Assert.Equal(HttpStatusCode.Forbidden, create.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/schools")).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync($"/api/schools/{Guid.NewGuid()}")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Admin_school_list_includes_saved_schools()
+    {
+        using var client = await fixture.CreateAdminClientAsync();
+        var slug = $"listed-{Guid.NewGuid():N}";
+        var created = await client.PostAsJsonAsync("/api/schools", new { name = "Listed School", slug });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var school = await created.Content.ReadFromJsonAsync<SchoolResponse>();
+        Assert.NotNull(school);
+
+        var response = await client.GetAsync("/api/schools");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var schools = await response.Content.ReadFromJsonAsync<List<SchoolResponse>>();
+        Assert.NotNull(schools);
+        Assert.Contains(school, schools);
     }
 
     [Fact]

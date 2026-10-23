@@ -13,6 +13,16 @@ namespace MDB.Api.Controllers;
 [Authorize(Roles = PlatformRoles.Admin)]
 public sealed class SchoolsController(ApplicationDbContext database) : ControllerBase
 {
+    [HttpGet]
+    public async Task<ActionResult<List<SchoolResponse>>> List(CancellationToken cancellationToken)
+    {
+        var schools = await database.DanceSchools.AsNoTracking()
+            .OrderBy(x => x.Name).ThenBy(x => x.Id)
+            .Select(x => new SchoolResponse(x.Id, x.Name, x.Slug))
+            .ToListAsync(cancellationToken);
+        return Ok(schools);
+    }
+
     [HttpPost]
     public async Task<ActionResult<SchoolResponse>> Create(CreateSchoolRequest request, CancellationToken cancellationToken)
     {

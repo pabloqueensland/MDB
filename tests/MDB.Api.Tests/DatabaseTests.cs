@@ -10,6 +10,28 @@ namespace MDB.Api.Tests;
 [Collection("API")]
 public sealed class DatabaseTests(ApiFixture fixture)
 {
+    [Theory]
+    [InlineData("midnight-motion")]
+    [InlineData("velvet-tempo")]
+    [InlineData("neon-rhythm-collective")]
+    public async Task Demo_school_has_leadership_teachers_and_students(string slug)
+    {
+        using var scope = fixture.Services.CreateScope();
+        var database = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var school = await database.DanceSchools.SingleAsync(x => x.Slug == slug);
+        var memberships = await database.SchoolMemberships.AsNoTracking()
+            .Where(x => x.SchoolId == school.Id).ToListAsync();
+        Assert.Single(memberships, x => x.Role == SchoolRole.SchoolManager);
+        Assert.Single(memberships, x => x.Role == SchoolRole.SchoolAdmin);
+        Assert.Equal(2, memberships.Count(x => x.Role == SchoolRole.Instructor));
+        Assert.Equal(4, memberships.Count(x => x.Role == SchoolRole.Student));
+        foreach (var membership in memberships)
+        {
+            Assert.True(await database.UserClaims.AnyAsync(x => x.UserId == membership.UserId
+                && x.ClaimType == DemoSchools.DisplayNameClaim && x.ClaimValue != null));
+        }
+    }
+
     [Fact]
     public async Task User_can_belong_to_multiple_schools_with_different_roles()
     {

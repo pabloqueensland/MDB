@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using MDB.Api.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +16,8 @@ public sealed class AuthController(
     UserManager<IdentityUser> users,
     SignInManager<IdentityUser> signIn,
     IOptionsMonitor<BearerTokenOptions> bearerOptions,
-    TimeProvider clock) : ControllerBase
+    TimeProvider clock,
+    ApplicationDbContext database) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
@@ -53,6 +56,11 @@ public sealed class AuthController(
             return Unauthorized();
         }
 
+        if (ticket.Principal.HasClaim(claim => claim.Type == PlatformUsersController.SessionClaim))
+        {
+            return Unauthorized();
+        }
+
         var user = await signIn.ValidateSecurityStampAsync(ticket.Principal);
         if (user is null || !await signIn.CanSignInAsync(user) || await users.IsLockedOutAsync(user))
         {
@@ -68,7 +76,17 @@ public sealed class AuthController(
     public async Task<IActionResult> Me()
     {
         var user = await users.GetUserAsync(User);
-        return user is null ? Unauthorized() : Ok(new { user.Id, user.Email });
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var roles = await users.GetRolesAsync(user);
+        var memberships = await database.SchoolMemberships.AsNoTracking()
+            .Where(x => x.UserId == user.Id)
+            .Select(x => new { x.SchoolId, SchoolName = x.School.Name, Role = x.Role.ToString() })
+            .ToListAsync();
+        return Ok(new { user.Id, user.Email, Roles = roles, Memberships = memberships });
     }
 }
 

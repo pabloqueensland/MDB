@@ -5,5 +5,6 @@ public enum SchoolRole
 {
     Student,
     Instructor,
-    SchoolAdmin
+    SchoolAdmin,
+    SchoolManager
 }

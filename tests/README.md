@@ -36,6 +36,10 @@ Coverage:
 - Anonymous and ordinary-user rejection from admin endpoints.
 - Membership uniqueness, different roles across schools, and protection against
   deleting existing data when seed credentials are invalid.
+- School manager/admin assignment permissions, cross-school isolation, teacher
+  access denial, and attempted leadership demotion or privilege escalation.
+- Platform-only impersonation, target permissions, nested impersonation denial,
+  session revocation/expiry, revoked admin access, and unassigned demo users.
 
 To run one area:
 

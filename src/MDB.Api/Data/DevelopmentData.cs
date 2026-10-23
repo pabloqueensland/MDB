@@ -10,6 +10,7 @@ public static class DevelopmentData
     {
         var email = configuration["SeedAdmin:Email"];
         var password = configuration["SeedAdmin:Password"];
+        var demoPassword = configuration["SeedDemo:Password"];
         if (string.IsNullOrWhiteSpace(email) || !new EmailAddressAttribute().IsValid(email)
             || string.IsNullOrWhiteSpace(password))
         {
@@ -24,6 +25,15 @@ public static class DevelopmentData
             RequireSuccess(await validator.ValidateAsync(users, user, password));
         }
 
+        if (string.IsNullOrWhiteSpace(demoPassword))
+        {
+            throw new InvalidOperationException("Set SeedDemo:Password before recreating the development database.");
+        }
+        foreach (var validator in users.PasswordValidators)
+        {
+            RequireSuccess(await validator.ValidateAsync(users, new IdentityUser { UserName = "demo@mdb.example", Email = "demo@mdb.example" }, demoPassword));
+        }
+
         var database = services.GetRequiredService<ApplicationDbContext>();
         await database.Database.EnsureDeletedAsync();
         await database.Database.EnsureCreatedAsync();
@@ -32,6 +42,7 @@ public static class DevelopmentData
         RequireSuccess(await roles.CreateAsync(new IdentityRole(PlatformRoles.Admin)));
         RequireSuccess(await users.CreateAsync(user, password));
         RequireSuccess(await users.AddToRoleAsync(user, PlatformRoles.Admin));
+        await DemoSchools.SeedAsync(database, users, demoPassword);
     }
 
     private static void RequireSuccess(IdentityResult result)

@@ -27,6 +27,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication();
+app.UseMiddleware<MDB.Api.ImpersonationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

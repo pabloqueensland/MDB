@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useAuthStore } from './stores/authStore';
+import Dashboard from './components/Dashboard';
 
 export default function App() {
   const user = useAuthStore((state) => state.user);
@@ -51,6 +52,10 @@ export default function App() {
     clearError();
   }
 
+  if (user) {
+    return <Dashboard key={user.id} />;
+  }
+
   return (
     <div className="app-shell">
       <aside className="story">
@@ -65,17 +70,6 @@ export default function App() {
       </aside>
       <main>
         <div className="top-note">YOUR NEXT CHAPTER STARTS HERE <span>↗</span></div>
-        {user ? (
-          <section className="auth-card" aria-labelledby="account-title">
-            <span className="section-number">01 / YOUR SPACE</span>
-            <div className="success-mark" aria-hidden="true">✓</div>
-            <h2 id="account-title">You’re in.</h2>
-            <p className="intro">Welcome to MDB. Your next step is yours to take.</p>
-            <div className="account-info"><span>SIGNED IN AS</span><strong>{user.email}</strong></div>
-            <div className="coming-next"><span>UP NEXT</span><h3>Your practice starts here.</h3><p>The move library and progress tracking are coming next. Your account is ready.</p></div>
-            <button className="primary" onClick={logout}>Sign out <span aria-hidden="true">↗</span></button>
-          </section>
-        ) : (
           <section className="auth-card" aria-labelledby="auth-title">
             <span className="section-number">01 / GET STARTED</span>
             <div className="tabs" aria-label="Account options">
@@ -95,7 +89,6 @@ export default function App() {
             </form>
             <p className="switch-copy">{mode === 'login' ? 'New to MDB?' : 'Already have an account?'} <button disabled={isLoading} onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}>{mode === 'login' ? 'Start your journey' : 'Sign in'}</button></p>
           </section>
-        )}
         <footer className="main-footer"><span>MADE FOR YOUR NEXT MOVE.</span><span>MDB / 2026</span></footer>
       </main>
     </div>

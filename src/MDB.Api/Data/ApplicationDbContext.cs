@@ -10,10 +10,19 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 {
     public DbSet<DanceSchool> DanceSchools => Set<DanceSchool>();
     public DbSet<SchoolMembership> SchoolMemberships => Set<SchoolMembership>();
+    public DbSet<ImpersonationSession> ImpersonationSessions => Set<ImpersonationSession>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<ImpersonationSession>(session =>
+        {
+            session.Property(x => x.AdminUserId).HasMaxLength(450).IsRequired();
+            session.Property(x => x.TargetUserId).HasMaxLength(450).IsRequired();
+            session.Property(x => x.AdminSecurityStamp).HasMaxLength(256).IsRequired();
+            session.HasIndex(x => x.ExpiresAt);
+        });
 
         builder.Entity<DanceSchool>(school =>
         {

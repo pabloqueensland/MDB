@@ -43,7 +43,8 @@ public sealed class ApiFixture : IAsyncLifetime
             new Dictionary<string, string?>
             {
                 ["SeedAdmin:Email"] = AdminEmail,
-                ["SeedAdmin:Password"] = AdminPassword
+                ["SeedAdmin:Password"] = AdminPassword,
+                ["SeedDemo:Password"] = "Test-only-Demo-Password1!"
             }).Build();
         await DevelopmentData.RecreateAndSeedAsync(scope.ServiceProvider, seedConfiguration);
     }
@@ -107,5 +108,5 @@ public sealed class ApiFixture : IAsyncLifetime
 }
 
 public sealed record TokenResponse(string TokenType, string AccessToken, string RefreshToken, int ExpiresIn);
-public sealed record AccountResponse(string Id, string Email);
+public sealed record AccountResponse(string Id, string Email, string[] Roles);
 public sealed record SchoolResponse(Guid Id, string Name, string Slug);
