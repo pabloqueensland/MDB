@@ -1,0 +1,136 @@
+{
+  "info": {
+    "name": "MDB API",
+    "description": "Local MDB API tests. Run requests in order. Register generates fresh credentials on each send; login and refresh save tokens automatically. Variables are development-only. No environment import is required.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5132", "type": "string" },
+    { "key": "email", "value": "", "type": "string" },
+    { "key": "password", "value": "", "type": "string" },
+    { "key": "accessToken", "value": "", "type": "string" },
+    { "key": "refreshToken", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Home",
+      "request": { "method": "GET", "url": "{{baseUrl}}/", "auth": { "type": "noauth" } },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Home returns 200', function () { pm.response.to.have.status(200); });",
+        "pm.test('Home responds correctly', function () { pm.expect(pm.response.text()).to.eql('Hello World!'); });"
+      ] } }]
+    },
+    {
+      "name": "2. Register new user",
+      "request": {
+        "method": "POST", "url": "{{baseUrl}}/auth/register", "auth": { "type": "noauth" },
+        "description": "Generates a new email and password each time. These become the credentials for subsequent requests. To log in as an existing user, set the collection email/password variables and send Login without sending Register.",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [
+        { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+          "pm.collectionVariables.set('email', 'postman-' + pm.variables.replaceIn('{{$guid}}') + '@example.com');",
+          "pm.collectionVariables.set('password', 'Test1!' + pm.variables.replaceIn('{{$guid}}'));",
+          "pm.collectionVariables.unset('accessToken');",
+          "pm.collectionVariables.unset('refreshToken');"
+        ] } },
+        { "listen": "test", "script": { "type": "text/javascript", "exec": [
+          "pm.test('Registration succeeds', function () { pm.response.to.have.status(200); });"
+        ] } }
+      ]
+    },
+    {
+      "name": "3. Login and save tokens",
+      "request": {
+        "method": "POST", "url": "{{baseUrl}}/auth/login", "auth": { "type": "noauth" },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [
+        { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+          "pm.collectionVariables.unset('accessToken');",
+          "pm.collectionVariables.unset('refreshToken');"
+        ] } },
+        { "listen": "test", "script": { "type": "text/javascript", "exec": [
+          "pm.test('Login succeeds', function () { pm.response.to.have.status(200); });",
+          "if (pm.response.code === 200) {",
+          "  const tokens = pm.response.json();",
+          "  pm.test('Both tokens returned', function () { pm.expect(tokens.accessToken).to.be.a('string').and.not.empty; pm.expect(tokens.refreshToken).to.be.a('string').and.not.empty; });",
+          "  pm.collectionVariables.set('accessToken', tokens.accessToken);",
+          "  pm.collectionVariables.set('refreshToken', tokens.refreshToken);",
+          "}"
+        ] } }
+      ]
+    },
+    {
+      "name": "4. Get my account",
+      "request": {
+        "method": "GET", "url": "{{baseUrl}}/api/me",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Authenticated request succeeds', function () { pm.response.to.have.status(200); });",
+        "if (pm.response.code === 200) {",
+        "  pm.test('Correct account returned', function () { const user = pm.response.json(); pm.expect(user.id).to.be.a('string').and.not.empty; pm.expect(user.email).to.eql(pm.collectionVariables.get('email')); });",
+        "}"
+      ] } }]
+    },
+    {
+      "name": "5. Refresh and save tokens",
+      "request": {
+        "method": "POST", "url": "{{baseUrl}}/auth/refresh", "auth": { "type": "noauth" },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Refresh succeeds', function () { pm.response.to.have.status(200); });",
+        "if (pm.response.code === 200) {",
+        "  const tokens = pm.response.json();",
+        "  pm.test('Both tokens returned', function () { pm.expect(tokens.accessToken).to.be.a('string').and.not.empty; pm.expect(tokens.refreshToken).to.be.a('string').and.not.empty; });",
+        "  pm.collectionVariables.set('accessToken', tokens.accessToken);",
+        "  pm.collectionVariables.set('refreshToken', tokens.refreshToken);",
+        "}"
+      ] } }]
+    },
+    {
+      "name": "6. Get my account with refreshed token",
+      "request": {
+        "method": "GET", "url": "{{baseUrl}}/api/me",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Refreshed token works', function () { pm.response.to.have.status(200); });"
+      ] } }]
+    },
+    {
+      "name": "7. No token returns 401",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/me", "auth": { "type": "noauth" } },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Unauthenticated request rejected', function () { pm.response.to.have.status(401); });"
+      ] } }]
+    },
+    {
+      "name": "8. Invalid registration returns 400",
+      "request": {
+        "method": "POST", "url": "{{baseUrl}}/auth/register", "auth": { "type": "noauth" },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"invalid\",\n  \"password\": \"weak\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Invalid registration rejected', function () { pm.response.to.have.status(400); });"
+      ] } }]
+    },
+    {
+      "name": "9. Invalid refresh token returns 401",
+      "request": {
+        "method": "POST", "url": "{{baseUrl}}/auth/refresh", "auth": { "type": "noauth" },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"invalid\"\n}", "options": { "raw": { "language": "json" } } }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Invalid refresh token rejected', function () { pm.response.to.have.status(401); });"
+      ] } }]
+    }
+  ]
+}

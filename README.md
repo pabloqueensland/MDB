@@ -30,8 +30,11 @@ proxy when deploying.
 
 Compose runs SQL Server 2022 Developer alongside the API. The API waits for SQL
 Server to become healthy and receives `ConnectionStrings:DefaultConnection`
-through its environment. EF Core and Identity still need to be added before
-the API creates the MDB database or stores any application data.
+through its environment. The API calls EF Core `EnsureCreatedAsync` at startup
+to create the MDB database and Identity tables if they do not exist.
+There are no migrations. `EnsureCreated` does not update existing schemas;
+schema changes will need a deliberate database update or recreation during
+development. Never delete a database containing data you need to keep.
 
 To connect from SQL Server Management Studio on Windows:
 
@@ -48,3 +51,28 @@ use a dedicated application login and a trusted certificate when deploying.
 
 Changing `.env` after the volume is initialized does not change the existing
 SQL Server login password; update the login in SQL Server as well.
+
+## Accounts
+
+The API uses ASP.NET Core Identity with SQL Server through `AuthController`:
+
+- `POST /auth/register` with JSON `{ "email": "you@example.com", "password": "YourStrongPassword1!" }`.
+- `POST /auth/login` with the same JSON returns an access token
+  and refresh token.
+- `GET /api/me` with `Authorization: Bearer <accessToken>` returns your ID and email.
+- `POST /auth/refresh` with JSON `{ "refreshToken": "<refreshToken>" }` renews tokens.
+
+Identity tokens are opaque bearer tokens, not JWTs. Keep tokens out of logs and
+source control. Data protection keys persist in the `api-keys` Docker volume
+so container replacement does not invalidate tokens.
+
+Email confirmation, password recovery, and two-factor authentication endpoints
+are not implemented yet. Account email confirmation is not currently required.
+There are no school tenants or progress tables yet.
+
+After changing the API, run `docker compose up --build -d` to rebuild.
+Use HTTPS when deploying.
+
+Run `pwsh -File scripts/Test-Auth.ps1` against the running Docker stack to test
+registration, validation, login, protected access, refresh, and account lockout.
+Each run leaves one disposable `smoke-...@example.com` account in the database.

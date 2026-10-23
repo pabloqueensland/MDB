@@ -11,6 +11,8 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+    volumes:
+      - api-keys:/home/app/.aspnet/DataProtection-Keys
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -31,3 +33,4 @@ services:
 
 volumes:
   sqlserver-data:
+  api-keys:
