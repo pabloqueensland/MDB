@@ -7,6 +7,8 @@ services:
       - "127.0.0.1:5132:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      SeedAdmin__Email: "${MDB_ADMIN_EMAIL:?Set MDB_ADMIN_EMAIL in .env}"
+      SeedAdmin__Password: "${MDB_ADMIN_PASSWORD:?Set MDB_ADMIN_PASSWORD in .env}"
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=MDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env};Encrypt=True;TrustServerCertificate=True"
     depends_on:
       sqlserver:

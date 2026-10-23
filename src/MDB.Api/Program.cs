@@ -15,13 +15,15 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
         options.Lockout.MaxFailedAccessAttempts = 5;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
-    await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreatedAsync();
+    await DevelopmentData.RecreateAndSeedAsync(scope.ServiceProvider, app.Configuration);
 }
 
 app.UseAuthentication();
@@ -30,3 +32,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Expose the entry point to WebApplicationFactory integration tests.
+public partial class Program
+{
+}
