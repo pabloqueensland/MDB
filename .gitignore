@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+**/node_modules/
+.vs/
+.idea/
+*.user
+**/.env
+**/.env.*
+!**/.env.example
+**/*.pfx
+**/*.p12

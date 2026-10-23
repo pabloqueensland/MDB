@@ -1,0 +1,10 @@
+**/bin
+**/obj
+**/node_modules
+**/.env
+**/.env.*
+**/*.pfx
+**/*.p12
+.git
+.vs
+.vscode
