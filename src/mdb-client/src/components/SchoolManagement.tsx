@@ -3,6 +3,7 @@ import { api } from '../api';
 import type { School } from '../api';
 import { useAuthStore } from '../stores/authStore';
 import AddSchoolModal from './AddSchoolModal';
+import PageHeader from './shared/PageHeader';
 
 export default function SchoolManagement() {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -49,7 +50,12 @@ export default function SchoolManagement() {
   return (
     <section aria-labelledby="schools-title">
       <a href="#/dashboard" className="breadcrumb">← Dashboard</a>
-      <div className="page-heading"><div><h1 className="page-title" id="schools-title">School management</h1><p className="page-description">All your schools, in one place.</p></div><button className="primary add-school-button" disabled={isLoading || !!error} onClick={() => { setNotice(''); setShowModal(true); }}>Add school <span aria-hidden="true">＋</span></button></div>
+      <PageHeader
+        titleId="schools-title"
+        title="School management"
+        description="All your schools, in one place."
+        actions={<button className="primary add-school-button" disabled={isLoading || !!error} onClick={() => { setNotice(''); setShowModal(true); }}>Add school <span aria-hidden="true">＋</span></button>}
+      />
       {notice && <p className="created-message" role="status">{notice}</p>}
       <div className="schools-panel" aria-busy={isLoading}>
         <div className="schools-panel-heading"><h2>Schools</h2>{!isLoading && !error && <span>{schools.length} total</span>}</div>

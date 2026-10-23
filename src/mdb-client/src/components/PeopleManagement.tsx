@@ -4,6 +4,7 @@ import type { Member, School, SchoolRole } from '../api';
 import { useAuthStore } from '../stores/authStore';
 import MembershipModal from './MembershipModal';
 import ImpersonateButton from './ImpersonateButton';
+import PageHeader from './shared/PageHeader';
 
 export default function PeopleManagement({ role }: { role: 'Instructor' | 'Student' }) {
   const token = useAuthStore((state) => state.accessToken);
@@ -60,7 +61,13 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
   }
 
   return <section aria-labelledby="people-title">
-    <div className="page-heading"><div><span className="section-number">YOUR COMMUNITY</span><h1 id="people-title" className="page-title">{title}</h1><p className="page-description">{user?.roles.includes('PlatformAdmin') ? 'Memberships across all schools.' : 'Memberships in the schools you administer.'}</p></div><button className="primary add-school-button" disabled={loading || !!error || schools.length === 0} onClick={() => { setNotice(''); setOpen(true); }}>Assign school role <span aria-hidden="true">＋</span></button></div>
+    <PageHeader
+      titleId="people-title"
+      eyebrow="YOUR COMMUNITY"
+      title={title}
+      description={user?.roles.includes('PlatformAdmin') ? 'Memberships across all schools.' : 'Memberships in the schools you administer.'}
+      actions={<button className="primary add-school-button" disabled={loading || !!error || schools.length === 0} onClick={() => { setNotice(''); setOpen(true); }}>Assign school role <span aria-hidden="true">＋</span></button>}
+    />
     {notice && <p className="created-message" role="status">{notice}</p>}
     {error ? <div><p className="error" role="alert">{error}</p><button className="secondary" onClick={() => setRevision((value) => value + 1)}>Try again</button></div>
       : loading ? <p className="panel-message" role="status">Loading memberships…</p>
