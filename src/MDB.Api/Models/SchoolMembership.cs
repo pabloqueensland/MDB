@@ -11,4 +11,5 @@ public sealed class SchoolMembership
     public DanceSchool School { get; set; } = null!;
     public IdentityUser User { get; set; } = null!;
     public ICollection<ClassEnrolment> Enrolments { get; set; } = new List<ClassEnrolment>();
+    public ICollection<StudentMove> StudentMoves { get; set; } = new List<StudentMove>();
 }

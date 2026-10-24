@@ -17,9 +17,12 @@ export interface DanceMove {
   level: number;
   videoUrl: string;
   description: string | null;
+  block: string | null;
   schoolId: string;
   schoolName: string;
   classes: MoveClass[];
+  isMastered: boolean;
+  canMarkMastered: boolean;
 }
 export interface Tokens { accessToken: string; refreshToken: string; expiresIn: number }
 
@@ -54,6 +57,10 @@ const json = (body: unknown): RequestInit => ({
 });
 
 export const api = {
+  setMoveMastery: (id: string, isMastered: boolean, token: string) => request<{ moveId: string; isMastered: boolean }>(`/api/moves/${id}/mastery`, {
+    ...json({ isMastered }), method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  }),
   createStream: (schoolId: string, name: string, token: string) => request<DanceStream>(`/api/schools/${schoolId}/streams`, {
     ...json({ name }), headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
   }),

@@ -47,6 +47,8 @@ Coverage:
   database rejection of a class paired with the wrong stream.
 - Stream and class creation by platform/school administrators, teacher/student
   denial, duplicate streams, invalid class levels, and cross-school rejection.
+- Student mastery persistence, idempotent marking/unmarking, per-student privacy,
+  token-derived ownership, and denial after enrolment deactivation.
 
 To run one area:
 

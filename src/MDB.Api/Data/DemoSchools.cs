@@ -69,7 +69,14 @@ public static class DemoSchools
                     Stream = salsa,
                     Moves = Salsa15Moves.Create(school)
                 });
-                school.Classes.Add(new DanceClass { Name = "Salsa 2", Level = 2m, School = school, Stream = salsa });
+                school.Classes.Add(new DanceClass
+                {
+                    Name = "Salsa 2",
+                    Level = 2m,
+                    School = school,
+                    Stream = salsa,
+                    Moves = Salsa2Moves.Create(school)
+                });
                 school.Classes.Add(new DanceClass { Name = "Salsa On2 1", Level = 1m, School = school, Stream = salsaOn2 });
                 school.Classes.Add(new DanceClass { Name = "Bachata 1", Level = 1m, School = school, Stream = bachata });
                 school.Classes.Add(new DanceClass { Name = "Bachata 4", Level = 4m, School = school, Stream = bachata });

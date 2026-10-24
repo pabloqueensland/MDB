@@ -8,6 +8,23 @@ its own disposable SQL Server container and does not touch your development DB.
 
 ## Classes and moves
 
+### Student mastery
+
+The first column in the full move list and block view contains a large **Mastered**
+checkbox. Enrolled students can mark/unmark their own accessible moves. Changes
+are saved with `PUT /api/moves/{id}/mastery` and `{ "isMastered": true/false }`.
+The shared table keeps both views consistent. A failed save leaves the previous
+state intact and displays an error. Staff cannot mark mastery unless they are
+acting as an eligible student (including through impersonation).
+
+`StudentMoves` is the many-to-many join between school memberships and moves.
+Its composite key prevents duplicate student/move links; foreign keys enforce
+same-school ownership. A row stores the mastery timestamp; unchecking removes
+the row. GET /api/moves returns only the authenticated user's `isMastered` and
+`canMarkMastered` flags. The API never accepts a target student ID for this action.
+Mastery does not unlock higher-level moves or bypass enrolments. No mastery data
+is seeded. The current development database reset also erases manual mastery.
+
 `DanceClass` has an ID, name, decimal level, school, and required stream. `DanceClass.Moves` and
 `Move.Classes` form a many-to-many relationship through `ClassMoves`. A move can
 be shared by several classes within its school. Composite foreign keys enforce
@@ -21,8 +38,11 @@ Development seed data adds **Salsa 1** (level 1), **Salsa 1.5** (level 1.5), and
 from the supplied curriculum screenshot, including partner work and shines.
 Repeated names and obvious abbreviations are merged, and technical skills and
 block/category labels are omitted. All are linked through ClassMoves and have
-level 1.5. Video URLs are empty until real clips are supplied. Salsa 1 and Salsa 2
-have no moves yet.
+level 1.5. Video URLs are empty until real clips are supplied. Salsa 1 has no moves
+yet. Salsa 2 includes 24 level-2 moves from the second curriculum screenshot,
+using blocks A–F and Common. Tow Truck is included once; Revision is omitted.
+Level-2 entries are separate records where names overlap with level 1.5, so the
+different block assignments remain intact.
 Streams and classes are configured through the stream API below. Students have
 stream/class enrolments managed from the Students page.
 
@@ -292,7 +312,7 @@ Salsa On2 1, Bachata 1, and Bachata 4. Demo student enrolments:
 | Nova Quinn | Salsa On1 → Salsa 1.5 | All 37 Salsa 1.5 moves |
 | Leo Sterling | Salsa On1 → Salsa 1 | No moves yet; level 1 has no seeded moves |
 | Ivy Moon | Bachata → Bachata 4 | No Salsa access; Bachata has no seeded moves |
-| Zane River | Salsa On1 → Salsa 2 | All 37 Salsa 1.5 moves through lower-level access |
+| Zane River | Salsa On1 → Salsa 2 | 24 Salsa 2 moves plus 37 Salsa 1.5 moves through lower-level access |
 
 Other demo students have no enrolments yet. Removing a school membership with
 enrolments requires removing its enrolment records first; SQL Server's delete

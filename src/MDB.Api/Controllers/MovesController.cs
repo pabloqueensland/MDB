@@ -4,23 +4,25 @@ using MDB.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace MDB.Api.Controllers;
 
 [ApiController]
 [Authorize]
 [Route("api/moves")]
-public sealed class MovesController(ApplicationDbContext database) : ControllerBase
+public sealed class MovesController(ApplicationDbContext database, MoveAccess access) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<MoveResponse>>> List(Guid? schoolId, Guid? streamId, Guid? classId, CancellationToken cancellationToken)
     {
-        var query = database.Moves.AsNoTracking();
-        var accessibleClasses = database.DanceClasses.AsNoTracking();
+        var query = access.VisibleMoves(User).AsNoTracking();
+        var accessibleClasses = access.VisibleClasses(User);
+        var studentMoves = access.StudentMoves(User).Select(x => x.Id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (!User.IsInRole(PlatformRoles.Admin))
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var schoolIds = database.SchoolMemberships.Where(x => x.UserId == userId).Select(x => x.SchoolId);
 
             if (schoolId.HasValue && !await schoolIds.ContainsAsync(schoolId.Value, cancellationToken))
@@ -28,16 +30,6 @@ public sealed class MovesController(ApplicationDbContext database) : ControllerB
                 return Forbid();
             }
 
-            query = query.Where(x => schoolIds.Contains(x.SchoolId));
-            var staffSchools = database.SchoolMemberships.Where(x => x.UserId == userId && x.Role != SchoolRole.Student)
-                .Select(x => x.SchoolId);
-            var enrolments = database.ClassEnrolments.Where(x => x.UserId == userId && x.IsActive
-                && x.Membership.Role == SchoolRole.Student);
-            accessibleClasses = accessibleClasses.Where(danceClass => staffSchools.Contains(danceClass.SchoolId)
-                || enrolments.Any(enrolment => enrolment.SchoolId == danceClass.SchoolId
-                    && enrolment.StreamId == danceClass.StreamId && enrolment.Class.Level >= danceClass.Level));
-            query = query.Where(move => staffSchools.Contains(move.SchoolId)
-                || move.Classes.Any(danceClass => accessibleClasses.Select(x => x.Id).Contains(danceClass.Id)));
         }
 
         if (schoolId.HasValue)
@@ -58,18 +50,62 @@ public sealed class MovesController(ApplicationDbContext database) : ControllerB
         }
 
         var moves = await query.OrderBy(x => x.School.Name).ThenBy(x => x.Level).ThenBy(x => x.Name)
-            .Select(x => new MoveResponse(x.Id, x.Name, x.Level, x.VideoUrl, x.Description,
+            .Select(x => new MoveResponse(x.Id, x.Name, x.Level, x.VideoUrl, x.Description, x.Block,
                 x.SchoolId, x.School.Name,
                 x.Classes.Where(danceClass => accessibleClasses.Select(c => c.Id).Contains(danceClass.Id))
                     .OrderBy(danceClass => danceClass.Level).ThenBy(danceClass => danceClass.Name)
                     .Select(danceClass => new MoveClassResponse(danceClass.Id, danceClass.Name, danceClass.Level,
-                        danceClass.StreamId, danceClass.Stream.Name)).ToList()))
+                        danceClass.StreamId, danceClass.Stream.Name)).ToList(),
+                database.StudentMoves.Any(mastery => mastery.MoveId == x.Id && mastery.UserId == userId),
+                studentMoves.Contains(x.Id)))
             .ToListAsync(cancellationToken);
 
         return Ok(moves);
     }
+
+    [HttpPut("{id:guid}/mastery")]
+    public async Task<ActionResult<MasteryResponse>> SetMastery(Guid id, MasteryRequest request, CancellationToken cancellationToken)
+    {
+        // The student identity comes only from the authenticated principal,
+        // including when a platform admin is impersonating that student.
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var move = await access.StudentMoves(User).AsNoTracking().SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        if (move is null || userId is null)
+        {
+            return Forbid();
+        }
+
+        if (!request.IsMastered)
+        {
+            await database.StudentMoves.Where(x => x.SchoolId == move.SchoolId && x.UserId == userId && x.MoveId == id)
+                .ExecuteDeleteAsync(cancellationToken);
+
+            return Ok(new MasteryResponse(id, false));
+        }
+
+        var exists = await database.StudentMoves.AnyAsync(x => x.SchoolId == move.SchoolId && x.UserId == userId && x.MoveId == id, cancellationToken);
+
+        if (!exists)
+        {
+            database.StudentMoves.Add(new StudentMove { SchoolId = move.SchoolId, UserId = userId, MoveId = id });
+
+            try
+            {
+                await database.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException exception) when (exception.InnerException is SqlException { Number: 2601 or 2627 })
+            {
+                // Another request already created the same student's mastery link.
+            }
+        }
+
+        return Ok(new MasteryResponse(id, true));
+    }
 }
 
 public sealed record MoveClassResponse(Guid Id, string Name, decimal Level, Guid StreamId, string StreamName);
-public sealed record MoveResponse(Guid Id, string Name, decimal Level, string VideoUrl, string? Description,
-    Guid SchoolId, string SchoolName, List<MoveClassResponse> Classes);
+public sealed record MoveResponse(Guid Id, string Name, decimal Level, string VideoUrl, string? Description, string? Block,
+    Guid SchoolId, string SchoolName, List<MoveClassResponse> Classes, bool IsMastered, bool CanMarkMastered);
+public sealed record MasteryRequest(bool IsMastered);
+public sealed record MasteryResponse(Guid MoveId, bool IsMastered);

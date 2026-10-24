@@ -6,6 +6,7 @@ import MembershipModal from './MembershipModal';
 import ImpersonateButton from './ImpersonateButton';
 import PageHeader from './shared/PageHeader';
 import EnrolmentsModal from './EnrolmentsModal';
+import SearchInput from './shared/SearchInput';
 
 export default function PeopleManagement({ role }: { role: 'Instructor' | 'Student' }) {
   const token = useAuthStore((state) => state.accessToken);
@@ -18,6 +19,7 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
   const [open, setOpen] = useState(false);
   const [revision, setRevision] = useState(0);
   const [enrolStudent, setEnrolStudent] = useState<Member | null>(null);
+  const [search, setSearch] = useState('');
   const title = role === 'Instructor' ? 'Teachers' : 'Students';
   const adminSession = useAuthStore((state) => state.adminSession);
   const canImpersonate = user?.roles.includes('PlatformAdmin') && !adminSession;
@@ -61,6 +63,10 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
     return () => controller.abort();
   }, [token, user, revision]);
 
+  const term = search.trim().toLowerCase();
+  const roleMembers = members.filter((member) => member.role === role);
+  const visibleMembers = roleMembers.filter((member) => `${member.name ?? ''} ${member.email}`.toLowerCase().includes(term));
+
   function table(items: Member[], empty: string) {
     if (items.length === 0) {
       return <p className="panel-message">{empty}</p>;
@@ -78,9 +84,11 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
       actions={<button className="primary add-school-button" disabled={loading || !!error || schools.length === 0} onClick={() => { setNotice(''); setOpen(true); }}>Assign school role <span aria-hidden="true">＋</span></button>}
     />
     {notice && <p className="created-message" role="status">{notice}</p>}
+    <SearchInput label={`Search ${title.toLowerCase()}`} value={search} onChange={setSearch}
+      placeholder="Search by name or email" disabled={loading} />
     {error ? <div><p className="error" role="alert">{error}</p><button className="secondary" onClick={() => setRevision((value) => value + 1)}>Try again</button></div>
       : loading ? <p className="panel-message" role="status">Loading memberships…</p>
-        : <><div className="schools-panel"><div className="schools-panel-heading"><h2>{title}</h2></div>{table(members.filter((member) => member.role === role), `No ${title.toLowerCase()} have been assigned yet.`)}</div>
+        : <><div className="schools-panel"><div className="schools-panel-heading"><h2>{title}</h2><span role="status">{visibleMembers.length} of {roleMembers.length}</span></div>{table(visibleMembers, term ? `No ${title.toLowerCase()} match your search.` : `No ${title.toLowerCase()} have been assigned yet.`)}</div>
           <div className="schools-panel team-panel"><div className="schools-panel-heading"><h2>School leadership</h2></div>{table(members.filter((member) => member.role === 'SchoolManager' || member.role === 'SchoolAdmin'), 'No school managers or studio admins have been assigned yet.')}</div>
           {schools.length === 0 && <p className="field-help team-help">Create a school from Schools before assigning users.</p>}</>}
     {open && <MembershipModal schools={schools} initialRole={role} onClose={() => setOpen(false)} onSaved={() => { setOpen(false); setNotice('School membership saved.'); setRevision((value) => value + 1); }} />}

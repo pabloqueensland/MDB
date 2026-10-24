@@ -4,6 +4,7 @@ import type { PlatformUser } from '../api';
 import { useAuthStore } from '../stores/authStore';
 import ImpersonateButton from './ImpersonateButton';
 import PageHeader from './shared/PageHeader';
+import SearchInput from './shared/SearchInput';
 
 export default function UsersManagement() {
   const token = useAuthStore((state) => state.accessToken);
@@ -49,7 +50,7 @@ export default function UsersManagement() {
   const visible = users.filter((user) => `${user.name} ${user.email} ${user.roles.join(' ')} ${user.memberships.map((m) => `${m.schoolName} ${m.role}`).join(' ')}`.toLowerCase().includes(filter.toLowerCase()));
 
   return <section aria-labelledby="users-title"><PageHeader titleId="users-title" eyebrow="PLATFORM ADMIN" title="All users" description="Every account, including platform admins and users without a school. View as a user to explore their access." />
-    <label htmlFor="user-search">Search users</label><input id="user-search" type="search" value={filter} onChange={(event) => setFilter(event.target.value)} placeholder="Search names, emails, schools or roles" />
+    <SearchInput label="Search users" value={filter} onChange={setFilter} placeholder="Search names, emails, schools or roles" />
     {loading ? <p role="status">Loading users…</p> : error ? <><p className="error" role="alert">{error}</p><button className="secondary" onClick={() => setAttempt((value) => value + 1)}>Try again</button></>
       : <div className="schools-panel"><div className="schools-panel-heading"><h2>Users</h2><span>{visible.length} accounts</span></div><div className="school-table-scroll"><table className="school-table"><thead><tr><th scope="col">User</th><th scope="col">Access</th><th scope="col">Action</th></tr></thead><tbody>{visible.map((user) => <tr key={user.id}><td><strong>{user.name}</strong><div className="user-email">{user.email}</div></td><td>{user.roles.length > 0 && <div>{user.roles.join(', ')}</div>}{user.memberships.map((membership) => <div key={membership.schoolId}>{membership.schoolName} · {membership.role}</div>)}{user.roles.length === 0 && user.memberships.length === 0 && <span className="unassigned-badge">Unassigned</span>}</td><td><ImpersonateButton userId={user.id} /></td></tr>)}</tbody></table>{visible.length === 0 && <p className="panel-message">No users match your search.</p>}</div></div>}
   </section>;

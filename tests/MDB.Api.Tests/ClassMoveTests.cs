@@ -9,6 +9,26 @@ namespace MDB.Api.Tests;
 public sealed class ClassMoveTests(ApiFixture fixture)
 {
     [Fact]
+    public async Task Salsa_2_seed_preserves_blocks_and_does_not_duplicate_tow_truck()
+    {
+        using var scope = fixture.Services.CreateScope();
+        var database = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var danceClass = await database.DanceClasses.Include(x => x.Moves)
+            .SingleAsync(x => x.Name == "Salsa 2" && x.School.Slug == "midnight-motion");
+
+        Assert.Equal(24, danceClass.Moves.Count);
+        Assert.Single(danceClass.Moves, x => x.Name == "Tow Truck");
+        Assert.DoesNotContain(danceClass.Moves, x => x.Name == "Revision");
+        Assert.Contains(danceClass.Moves, x => x.Name == "Push Turn" && x.Block == "E");
+        Assert.Contains(danceClass.Moves, x => x.Name == "Shadow Flick" && x.Block == "F");
+        Assert.All(danceClass.Moves, move =>
+        {
+            Assert.Equal(2m, move.Level);
+            Assert.Equal(danceClass.SchoolId, move.SchoolId);
+        });
+    }
+
+    [Fact]
     public async Task Salsa_15_seed_contains_unique_moves_linked_to_midnight_motion()
     {
         using var scope = fixture.Services.CreateScope();
@@ -26,6 +46,7 @@ public sealed class ClassMoveTests(ApiFixture fixture)
             Assert.Equal(1.5m, move.Level);
             Assert.Equal(danceClass.SchoolId, move.SchoolId);
             Assert.Equal(string.Empty, move.VideoUrl);
+            Assert.Contains(move.Block, new[] { "A", "B", "C", "D", "E", "F" });
         });
     }
 

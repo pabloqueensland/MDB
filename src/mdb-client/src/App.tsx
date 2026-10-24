@@ -66,7 +66,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <aside className="story">
-        <a className="brand" href="/" aria-label="MDB home"><span className="brand-mark">m</span> MDB<span className="brand-caption">MOVE. DANCE. BECOME.</span></a>
+        <a className="brand" href="/" aria-label="MDB home"><span className="brand-mark">m</span> MDB</a>
         <div className="story-content">
           <span className="eyebrow"><span className="little-line" /> YOUR PRACTICE, YOUR PACE</span>
           <h1>Every great dancer<br />starts with<br /><em>one step.</em></h1>
@@ -76,7 +76,6 @@ export default function App() {
         <footer className="story-footer"><span>A LITTLE PRACTICE. A LITTLE PROGRESS.</span><span>✳</span></footer>
       </aside>
       <main>
-        <div className="top-note">YOUR NEXT CHAPTER STARTS HERE <span>↗</span></div>
           <section className="auth-card" aria-labelledby="auth-title">
             <span className="section-number">01 / GET STARTED</span>
             <div className="tabs" aria-label="Account options">

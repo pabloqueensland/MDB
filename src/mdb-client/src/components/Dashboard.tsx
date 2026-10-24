@@ -84,7 +84,7 @@ export default function Dashboard() {
       <div className="sidebar-account"><span className="sidebar-label">SIGNED IN AS</span><strong>{user.email}</strong>{isPlatform && <span className="role-pill">Platform admin</span>}<button onClick={logout}>Sign out <span aria-hidden="true">↗</span></button></div>
     </aside>
     <main className="dashboard-main">
-      <header className="workspace-header"><a href="#/dashboard">MDB / YOUR WORKSPACE</a><span>MOVE. DANCE. BECOME.</span></header>
+      <header className="workspace-header"><a href="#/dashboard">MDB / YOUR WORKSPACE</a></header>
       {adminSession && <div className="impersonation-banner" role="status"><div><strong>Viewing as {user.email}</strong><span>Actions use this account’s permissions and change real data. Session lasts up to 15 minutes.</span></div><button className="secondary" disabled={impersonationBusy} onClick={() => { void stopImpersonating(); }}>{impersonationBusy ? 'Returning…' : 'Return to my account'}</button></div>}
       {impersonationError && <p className="error" role="alert">{impersonationError}</p>}
       <div className="workspace-content">

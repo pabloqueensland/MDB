@@ -10,6 +10,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddScoped<MDB.Api.SchoolAccess>();
+builder.Services.AddScoped<MDB.Api.MoveAccess>();
 builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
     {
         options.User.RequireUniqueEmail = true;

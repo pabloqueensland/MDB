@@ -16,10 +16,23 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<ClassMove> ClassMoves => Set<ClassMove>();
     public DbSet<DanceStream> DanceStreams => Set<DanceStream>();
     public DbSet<ClassEnrolment> ClassEnrolments => Set<ClassEnrolment>();
+    public DbSet<StudentMove> StudentMoves => Set<StudentMove>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<StudentMove>(mastery =>
+        {
+            mastery.HasKey(x => new { x.SchoolId, x.UserId, x.MoveId });
+            mastery.HasOne(x => x.Student).WithMany(x => x.StudentMoves)
+                .HasForeignKey(x => new { x.SchoolId, x.UserId })
+                .OnDelete(DeleteBehavior.NoAction);
+            mastery.HasOne(x => x.Move).WithMany(x => x.StudentMoves)
+                .HasForeignKey(x => new { x.SchoolId, x.MoveId })
+                .HasPrincipalKey(x => new { x.SchoolId, x.Id })
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
         builder.Entity<DanceStream>(stream =>
         {
@@ -88,6 +101,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             move.Property(x => x.Level).HasPrecision(6, 2);
             move.Property(x => x.VideoUrl).HasMaxLength(2048).IsRequired();
             move.Property(x => x.Description).HasMaxLength(4000);
+            // The model enforces a word count, rather than a character limit.
+            move.Property(x => x.Block).HasColumnType("nvarchar(max)");
             move.HasIndex(x => new { x.SchoolId, x.Level });
             move.HasOne(x => x.School)
                 .WithMany(x => x.Moves)
