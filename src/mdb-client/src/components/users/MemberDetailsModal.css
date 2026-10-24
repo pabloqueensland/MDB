@@ -1,0 +1,17 @@
+.member-details {
+  display: grid;
+  gap: 16px;
+  margin: 0 0 24px;
+}
+
+.member-details dt {
+  margin-bottom: 4px;
+  color: #65715e;
+  font-size: 11px;
+}
+
+.member-details dd {
+  margin: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}

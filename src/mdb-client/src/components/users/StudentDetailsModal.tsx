@@ -1,3 +1,5 @@
+import NotificationSnackbar from '../shared/NotificationSnackbar';
+import InlineAlert from '../shared/InlineAlert';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
@@ -104,8 +106,8 @@ export default function StudentDetailsModal({ student, onClose }: Props) {
       <h3>Enrolments</h3>
       {!loading && !error && <Chip size="small" label={enrolments.filter((item) => item.isActive).length + ' active'} />}
     </div>
-    {error && <p className="error" role="alert">{error}</p>}
-    {notice && <p className="created-message" role="status">{notice}</p>}
+    {error && <InlineAlert>{error}</InlineAlert>}
+    {notice && <NotificationSnackbar message={notice} onClose={() => setNotice('')} />}
     {loading ? <p role="status">Loading streams and enrolments…</p> : <>
       <div className="enrolment-list">
         {enrolments.map((item) => (

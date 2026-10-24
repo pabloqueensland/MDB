@@ -1,3 +1,5 @@
+import NotificationSnackbar from '../shared/NotificationSnackbar';
+import InlineAlert from '../shared/InlineAlert';
 import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
@@ -12,7 +14,6 @@ import { api } from '../../api';
 import type { School } from '../../api';
 import { useAuthStore } from '../../stores/authStore';
 import AddSchoolModal from './AddSchoolModal';
-import PageHeader from '../shared/PageHeader';
 
 export default function SchoolManagement() {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -64,19 +65,13 @@ export default function SchoolManagement() {
   }
 
   return (
-    <section aria-labelledby="schools-title">
+    <section aria-label="Schools">
       <a href="#/dashboard" className="breadcrumb">← Dashboard</a>
-      <PageHeader
-        titleId="schools-title"
-        title="School management"
-        description="All your schools, in one place."
-        actions={<Button className="add-school-button" disabled={isLoading || !!error} onClick={() => { setNotice(''); setShowModal(true); }}>Add school <span aria-hidden="true">＋</span></Button>}
-      />
-      {notice && <p className="created-message" role="status">{notice}</p>}
+      {notice && <NotificationSnackbar message={notice} onClose={() => setNotice('')} />}
       <ManagementPanel  aria-busy={isLoading}>
-        <PanelHeading><h2>Schools</h2>{!isLoading && !error && <span>{schools.length} total</span>}</PanelHeading>
+        <PanelHeading><h2>Schools</h2>{!isLoading && !error && <span>{schools.length} total</span>}<Button disabled={isLoading || !!error} onClick={() => { setNotice(''); setShowModal(true); }}>Add school <span aria-hidden="true">＋</span></Button></PanelHeading>
         {isLoading ? <p className="panel-message" role="status">Loading schools…</p>
-          : error ? <div className="panel-message"><p className="error" role="alert">{error}</p><Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>Try again</Button></div>
+          : error ? <div className="panel-message"><InlineAlert>{error}</InlineAlert><Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>Try again</Button></div>
             : schools.length === 0 ? <div className="empty-schools"><CardIcon>▤</CardIcon><h3>Your first school starts here.</h3><p>Add a school to start building your dance community.</p><Button variant="secondary" onClick={() => { setNotice(''); setShowModal(true); }}>Add your first school</Button></div>
               : <TableScroll><DataTable><TableHead><TableRow><TableCell scope="col">School name</TableCell><TableCell scope="col">Slug</TableCell></TableRow></TableHead><TableBody>{schools.map((school) => <TableRow key={school.id}><TableCell><span className="school-avatar" aria-hidden="true">{school.name.charAt(0).toUpperCase()}</span>{school.name}</TableCell><TableCell>{school.slug}</TableCell></TableRow>)}</TableBody></DataTable></TableScroll>}
       </ManagementPanel>

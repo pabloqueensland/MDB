@@ -2,6 +2,7 @@ import './Navigation.css';
 import { useEffect, useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import AppBar from '@mui/material/AppBar';
+import Chip from '@mui/material/Chip';
 import Toolbar from '@mui/material/Toolbar';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -24,7 +25,6 @@ export default function Navigation({ items, page, email, isPlatform, onLogout }:
   const mobile = useMediaQuery('(max-width:650px)');
   const [open, setOpen] = useState(false);
   const menuId = useId();
-  const section = items.find((item) => item.page === page)?.label ?? 'Dashboard';
 
   useEffect(() => {
     setOpen(false);
@@ -38,14 +38,13 @@ export default function Navigation({ items, page, email, isPlatform, onLogout }:
     <>
       {mobile && <AppBar position="sticky" elevation={0} className="mobile-navigation-bar">
         <Toolbar className="mobile-navigation-toolbar">
+          <Brand href="#/dashboard" label="MDB dashboard" />
           <Button variant="inverse" size="icon" aria-label="Open navigation menu"
             aria-expanded={open} aria-controls={open ? menuId : undefined} onClick={() => setOpen(true)}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </Button>
-          <Brand href="#/dashboard" label="MDB dashboard" />
-          <span className="mobile-navigation-section">{section}</span>
         </Toolbar>
       </AppBar>}
 
@@ -71,7 +70,7 @@ export default function Navigation({ items, page, email, isPlatform, onLogout }:
           <div className="navigation-account">
             <span className="navigation-account-label">SIGNED IN AS</span>
             <strong>{email}</strong>
-            {isPlatform && <span className="navigation-role">Platform admin</span>}
+            {isPlatform && <Chip size="small" color="secondary" className="navigation-role" label="Platform admin" />}
             <Button variant="inverse" className="navigation-sign-out" onClick={onLogout}>Sign out <span aria-hidden="true">↗</span></Button>
           </div>
         </div>

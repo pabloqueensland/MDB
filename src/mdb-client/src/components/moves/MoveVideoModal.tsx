@@ -1,3 +1,4 @@
+import InlineAlert from '../shared/InlineAlert';
 import './MoveVideoModal.css';
 import { useState } from 'react';
 import type { DanceMove } from '../../api';
@@ -14,11 +15,11 @@ export default function MoveVideoModal({ move, onClose }: { move: DanceMove; onC
   }
 
   return (
-    <Modal title={move.name} description={move.schoolName} className="move-video-modal" onClose={onClose}>
+    <Modal title={move.name} className="move-video-modal" onClose={onClose}>
       <video key={attempt} className="move-video-player" controls playsInline preload="metadata"
         src={move.videoUrl} aria-label={`${move.name} demonstration`} onError={() => setFailed(true)} />
       {failed && <div className="move-video-error">
-        <p className="error" role="alert">Could not play this video. Check that the video URL is available and the file is supported by your browser.</p>
+        <InlineAlert>Could not play this video. Check that the video URL is available and the file is supported by your browser.</InlineAlert>
         <Button variant="secondary" onClick={retry}>Try again</Button>
       </div>}
       {move.description && <p className="move-video-description">{move.description}</p>}

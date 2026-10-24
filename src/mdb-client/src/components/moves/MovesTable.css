@@ -50,6 +50,10 @@
   text-align: right;
 }
 
+.move-mobile-summary {
+  display: none;
+}
+
 .school-table.moves-table th, .school-table.moves-table td {
   max-width: none;
   padding: 16px;
@@ -62,11 +66,6 @@
   padding: 12px;
 }
 
-.moves-table .move-class-labels span {
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-
 .moves-table .video-placeholder {
   white-space: normal;
 }
@@ -77,8 +76,7 @@
   padding: 8px 0;
   text-align: left;
   color: #234c39;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  text-decoration: none;
   overflow-wrap: anywhere;
 }
 
@@ -115,27 +113,11 @@
   margin-bottom: 0;
 }
 
-.level-badge {
-  display: inline-block;
-  padding: 5px 9px;
-  border-radius: 5px;
-  background: #edf1e0;
-  color: #426245;
-}
-
 .move-class-labels {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 8px;
-}
-
-.move-class-labels span {
-  font-size: 10px;
-  color: #62765d;
-  background: #f0f2e8;
-  border-radius: 4px;
-  padding: 4px 7px;
 }
 
 .video-placeholder {
@@ -232,20 +214,44 @@
     grid-column: 5;
   }
 
-  .moves-table .move-detail-cell {
-    grid-column: 2 / -1;
-    padding-top: 4px;
+  .school-table.moves-table .move-detail-cell {
+    display: none;
   }
 
-  .moves-table .move-detail-cell::before {
-    content: attr(data-label) ': ';
+  .move-mobile-summary {
+    display: block;
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 0;
+    max-width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     color: #65715e;
     font-size: 10px;
+    line-height: 1.5;
   }
 
   .moves-table .move-watch-name {
     min-height: 44px;
     padding: 4px 0;
+    min-width: 0;
+    text-decoration: none;
+  }
+
+  .move-name-heading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .move-name-heading > strong,
+  .move-name-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .moves-table .move-video-cell .button {
@@ -277,4 +283,16 @@
 
 .MuiCheckbox-root.mastery-control {
   padding: 7px;
+}
+
+.move-class-labels .MuiChip-root {
+  max-width: 100%;
+  height: auto;
+  min-height: 24px;
+}
+
+.move-class-labels .MuiChip-label {
+  padding: 4px 7px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }

@@ -1,3 +1,4 @@
+import InlineAlert from '../shared/InlineAlert';
 import './EditMoveModal.css';
 import Button from '../shared/Button';
 import { useId, useState } from 'react';
@@ -100,7 +101,7 @@ export default function EditMoveModal({ move, onClose, onSaved }: Props) {
             value={description} onChange={(event) => setDescription(event.target.value)}
             slotProps={{ htmlInput: { maxLength: 4000 } }} />
         </fieldset>
-        {error && <p className="error" role="alert">{error}</p>}
+        {error && <InlineAlert>{error}</InlineAlert>}
       </DialogContent>
       <DialogActions className="edit-move-actions">
         <Button variant="secondary" disabled={busy} onClick={onClose}>Cancel</Button>

@@ -1,14 +1,3 @@
-.mastery-notice {
-  color: #31543a;
-  font-size: 12px;
-  line-height: 1.6;
-  margin: 0 0 18px;
-}
-
-.mastery-notice:empty {
-  margin: 0;
-}
-
 .moves-view-toolbar {
   gap: 20px;
   flex-wrap: wrap;

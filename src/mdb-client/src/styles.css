@@ -77,32 +77,11 @@ form {
   margin: -11px 0 20px;
 }
 
-.error {
-  font-size: 12px;
-  line-height: 1.6;
-  color: #8d322c;
-  background: #f8e8e0;
-  border: 1px solid #e4c6bd;
-  border-radius: 6px;
-  padding: 12px;
-  margin: 0 0 18px;
-}
-
 @media (max-width:650px) {
   h2 {
     font-size: 29px;
   }
 
-}
-
-.created-message {
-  background: #edf1e2;
-  border: 1px solid #c9d6bb;
-  border-radius: 6px;
-  padding: 14px;
-  font-size: 12px;
-  line-height: 1.6;
-  margin: 24px 0;
 }
 
 .panel-message {

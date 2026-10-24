@@ -2,6 +2,7 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import Chip from '@mui/material/Chip';
 import Checkbox from '@mui/material/Checkbox';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StarIcon from '@mui/icons-material/Star';
@@ -63,17 +64,24 @@ export default function MovesTable({ moves, showBlock = true, savingMoveIds, onM
                 {savingMoveIds.has(move.id) && <span className="mastery-saving">Saving…</span>}
               </TableCell>
               <TableCell className="move-name-cell">
+                <div className="move-name-heading">
                 {/^https?:\/\//i.test(move.videoUrl)
-                  ? <Button variant="ghost" className="move-watch-name" onClick={() => onWatch(move)} aria-label={`Watch ${move.name}`}>{move.name}</Button>
-                  : <strong>{move.name}</strong>}
+                  ? <Button variant="ghost" className="move-watch-name" onClick={() => onWatch(move)} aria-label={`Watch ${move.name}`} title={move.name}><span className="move-name-text">{move.name}</span></Button>
+                  : <strong title={move.name}>{move.name}</strong>}
+                {showBlock && <span className="move-mobile-summary"
+                  title={`${[...new Set(move.classes.map((danceClass) => danceClass.name))].join(', ') || `Level ${move.level}`} ${move.block ?? ''}`}>
+                  {[...new Set(move.classes.map((danceClass) => danceClass.name))].join(', ') || `Level ${move.level}`}
+                  {move.block && ` ${move.block}`}
+                </span>}
+                </div>
                 {move.description && <p className="move-description">{move.description}</p>}
               </TableCell>
               {showBlock && <TableCell className="move-detail-cell" data-label="Block">{move.block ?? '—'}</TableCell>}
-              {showBlock && <TableCell className="move-detail-cell" data-label="Level"><span className="level-badge">{move.level}</span></TableCell>}
+              {showBlock && <TableCell className="move-detail-cell" data-label="Level"><Chip size="small" label={move.level} /></TableCell>}
               {showBlock && <TableCell className="move-detail-cell" data-label="Classes">
                 <span className="table-mobile-hidden">{move.schoolName}</span>
                 <div className="move-class-labels">
-                  {move.classes.map((danceClass) => <span key={danceClass.id}>{danceClass.streamName} · {danceClass.name}</span>)}
+                  {move.classes.map((danceClass) => <Chip key={danceClass.id} size="small" variant="outlined" label={`${danceClass.streamName} · ${danceClass.name}`} />)}
                 </div>
               </TableCell>}
               {showFavorites && <TableCell className="move-favorite-cell">

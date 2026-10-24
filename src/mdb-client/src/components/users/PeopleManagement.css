@@ -11,3 +11,12 @@
 .team-help {
   margin-top: 20px;
 }
+
+.person-detail-link {
+  justify-content: flex-start;
+  padding: 4px 0;
+  min-width: 0;
+  text-align: left;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}

@@ -1,3 +1,4 @@
+import InlineAlert from '../shared/InlineAlert';
 import TextField from '@mui/material/TextField';
 import Modal from '../shared/Modal';
 import './AddSchoolModal.css';
@@ -77,7 +78,7 @@ export default function AddSchoolModal({ onClose, onCreated }: Props) {
         }}
         slotProps={{ htmlInput: { maxLength: 100, pattern: "[a-z0-9]+(-[a-z0-9]+)*" } }} />
       
-      {error && <p className="error" role="alert">{error}</p>}
+      {error && <InlineAlert>{error}</InlineAlert>}
     </Modal>
   );
 }

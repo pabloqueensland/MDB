@@ -86,11 +86,6 @@
   overflow-wrap: anywhere;
 }
 
-.navigation-role {
-  color: #d4df8c;
-  font-size: 10px;
-}
-
 .navigation-sign-out {
   justify-content: space-between;
 }
@@ -101,22 +96,20 @@
 }
 
 .mobile-navigation-toolbar {
+  justify-content: space-between;
   min-height: 56px;
   padding: 0 10px;
   gap: 8px;
 }
 
-.mobile-navigation-section {
-  min-width: 0;
-  margin-left: auto;
-  font-size: 12px;
-  text-align: right;
-  overflow-wrap: anywhere;
-}
 
 @media (max-width:1000px) {
   .desktop-navigation-drawer,
   .desktop-navigation-drawer .navigation-paper {
     width: 210px;
   }
+}
+
+.navigation-role {
+  justify-self: start;
 }

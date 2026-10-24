@@ -1,5 +1,6 @@
 import './MovesBlockView.css';
 import { useId } from 'react';
+import Chip from '@mui/material/Chip';
 import type { DanceMove } from '../../api';
 import MovesTable from './MovesTable';
 import type { MovesTableProps } from './MovesTable';
@@ -88,7 +89,7 @@ export default function MovesBlockView({ moves, allMoves, savingMoveIds, onMaste
               <span className="stream-count">{group.schoolName}{group.streamName && ` · ${group.streamName}`} · Level {group.level}</span>
             </div>
             <div className="block-progress" aria-live="polite">
-              {allMastered && <span className="block-mastered-badge">✓ All mastered</span>}
+              {allMastered && <Chip size="small" color="success" label="All mastered" />}
               <span>{masteredCount} / {blockMoves.length} mastered</span>
             </div>
             <span className="block-chevron" aria-hidden="true">›</span>

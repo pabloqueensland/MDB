@@ -1,0 +1,9 @@
+.notification-alert {
+  width: 100%;
+  max-width: 560px;
+  overflow-wrap: anywhere;
+}
+
+.notification-alert .MuiAlert-message {
+  min-width: 0;
+}

@@ -1,3 +1,4 @@
+import InlineAlert from './components/shared/InlineAlert';
 import Brand from './components/shared/Brand';
 import Footer from './components/shared/Footer';
 import './App.css';
@@ -109,7 +110,7 @@ export default function App() {
               {mode === 'register' && <TextField id="confirm" label="Confirm password" fullWidth
                 type={showPassword ? 'text' : 'password'} autoComplete="new-password" placeholder="Enter your password again"
                 value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required disabled={isLoading} />}
-              {(formError || error) && <p className="error" role="alert">{formError || error}</p>}
+              {(formError || error) && <InlineAlert>{formError || error}</InlineAlert>}
               <Button fullWidth type="submit" disabled={isLoading}>{isLoading ? 'One moment…' : mode === 'login' ? 'Sign in' : 'Create account'}<span aria-hidden="true">↗</span></Button>
             </form>
             <p className="switch-copy">{mode === 'login' ? 'New to MDB?' : 'Already have an account?'} <Button variant="ghost" size="compact" disabled={isLoading} onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}>{mode === 'login' ? 'Start your journey' : 'Sign in'}</Button></p>

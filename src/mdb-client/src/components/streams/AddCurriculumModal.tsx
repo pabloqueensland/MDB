@@ -1,3 +1,4 @@
+import InlineAlert from '../shared/InlineAlert';
 import TextField from '@mui/material/TextField';
 import './AddCurriculumModal.css';
 import Button from '../shared/Button';
@@ -71,7 +72,7 @@ export default function AddCurriculumModal({ schoolId, schoolName, stream, onClo
         slotProps={{ htmlInput: { min: "0", max: "9999.99", step: "0.01" } }} />
         
       </>}
-      {error && <p className="error" role="alert">{error}</p>}
+      {error && <InlineAlert>{error}</InlineAlert>}
     </Modal>
   );
 }

@@ -1,3 +1,5 @@
+import NotificationSnackbar from '../shared/NotificationSnackbar';
+import InlineAlert from '../shared/InlineAlert';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import './MovesLibrary.css';
@@ -150,7 +152,7 @@ export default function MovesLibrary() {
       {watchingMove && <MoveVideoModal key={watchingMove.id} move={watchingMove} onClose={() => setWatchingMove(null)} />}
       {editingMove && <EditMoveModal key={editingMove.id} move={editingMove} onClose={() => setEditingMove(null)} onSaved={() => { setEditingMove(null); setAttempt((value) => value + 1); }} />}
       {loading ? <p className="panel-message" role="status">Loading moves…</p>
-        : error ? <div><p className="error" role="alert">{error}</p><Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>Try again</Button></div>
+        : error ? <div><InlineAlert>{error}</InlineAlert><Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>Try again</Button></div>
           : moves.length === 0 ? <div className="dashboard-welcome"><h2>No available moves yet.</h2><p>Students need an active stream and class enrolment. Your school also needs moves linked to a class at your enrolled level or below.</p></div>
             : <>
               <div className={`move-filters${showSchoolFilter ? '' : ' move-filters--single-school'}`}>
@@ -171,8 +173,8 @@ export default function MovesLibrary() {
                   {streamClasses.map((danceClass) => <MenuItem key={danceClass.id} value={danceClass.id}>{danceClass.name}</MenuItem>)}
                 </TextField>
               </div>
-              {masteryError && <p className="error" role="alert">{masteryError}</p>}
-              <p className="mastery-notice" role="status">{masteryNotice}</p>
+              {masteryError && <InlineAlert>{masteryError}</InlineAlert>}
+              <NotificationSnackbar message={masteryNotice} onClose={() => setMasteryNotice('')} />
               <ManagementPanel>
                 <PanelHeading className="moves-view-toolbar">
                   <div><h2>Move library</h2><span className="stream-count" role="status">{visible.length} {visible.length === 1 ? 'move' : 'moves'}</span></div>

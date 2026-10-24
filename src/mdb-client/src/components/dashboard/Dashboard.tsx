@@ -1,3 +1,4 @@
+import InlineAlert from '../shared/InlineAlert';
 import Navigation from './Navigation';
 import Footer from '../shared/Footer';
 import './Dashboard.css';
@@ -89,7 +90,7 @@ export default function Dashboard() {
     <Navigation items={visibleMenu} page={page} email={user.email} isPlatform={isPlatform} onLogout={logout} />
     <main className="dashboard-main">
       {adminSession && <div className="impersonation-banner" role="status"><div><strong>Viewing as {user.email}</strong><span>Actions use this account’s permissions and change real data. Session lasts up to 15 minutes.</span></div><Button variant="secondary" disabled={impersonationBusy} onClick={() => { void stopImpersonating(); }}>{impersonationBusy ? 'Returning…' : 'Return to my account'}</Button></div>}
-      {impersonationError && <p className="error" role="alert">{impersonationError}</p>}
+      {impersonationError && <InlineAlert>{impersonationError}</InlineAlert>}
       <div className="workspace-content">
         {page === 'dashboard' && <DashboardHome cards={cards} />}
         {isPlatform && page === 'schools' && <SchoolManagement />}

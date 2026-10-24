@@ -1,3 +1,6 @@
+import Chip from '@mui/material/Chip';
+import NotificationSnackbar from '../shared/NotificationSnackbar';
+import InlineAlert from '../shared/InlineAlert';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import TableHead from '@mui/material/TableHead';
@@ -111,9 +114,9 @@ export default function StreamsManagement() {
       <PageHeader titleId="streams-title" eyebrow="CURRICULUM" title="Streams & classes"
         description="Build each school's dance styles and the classes within them."
         actions={<Button className="add-school-button" disabled={!schoolId || loadingSchools || loadingStreams || !!schoolError || !!streamError} onClick={() => { setNotice(''); setModal({ stream: null }); }}>Add stream <span aria-hidden="true">＋</span></Button>} />
-      {notice && <p className="created-message" role="status">{notice}</p>}
+      {notice && <NotificationSnackbar message={notice} onClose={() => setNotice('')} />}
       {loadingSchools ? <p role="status">Loading schools…</p>
-        : schoolError ? <><p className="error" role="alert">{schoolError}</p><Button variant="secondary" onClick={() => setSchoolAttempt((value) => value + 1)}>Try again</Button></>
+        : schoolError ? <><InlineAlert>{schoolError}</InlineAlert><Button variant="secondary" onClick={() => setSchoolAttempt((value) => value + 1)}>Try again</Button></>
           : schools.length === 0 ? <div className="dashboard-welcome"><h2>No schools available.</h2><p>A platform admin must create a school and assign its administrators first.</p></div>
             : <>
               <div className="curriculum-school"><TextField select fullWidth label="School"
@@ -121,12 +124,12 @@ export default function StreamsManagement() {
                 {schools.map((school) => <MenuItem key={school.id} value={school.id}>{school.name}</MenuItem>)}
               </TextField></div>
               {loadingStreams ? <p className="panel-message" role="status">Loading streams…</p>
-                : streamError ? <><p className="error" role="alert">{streamError}</p><Button variant="secondary" onClick={() => setStreamAttempt((value) => value + 1)}>Try again</Button></>
+                : streamError ? <><InlineAlert>{streamError}</InlineAlert><Button variant="secondary" onClick={() => setStreamAttempt((value) => value + 1)}>Try again</Button></>
                   : streams.length === 0 ? <div className="dashboard-welcome"><h2>Your first stream starts here.</h2><p>Add a dance style such as Salsa On1, Salsa On2, or Bachata, then create its classes.</p></div>
                     : <div className="stream-list">{streams.map((stream) => <ManagementPanel  key={stream.id} aria-labelledby={`stream-${stream.id}`}>
                       <PanelHeading><div><h2 id={`stream-${stream.id}`}>{stream.name}</h2><span className="stream-count">{stream.classes.length} {stream.classes.length === 1 ? 'class' : 'classes'}</span></div><Button variant="secondary" onClick={() => { setNotice(''); setModal({ stream }); }}>Add class ＋</Button></PanelHeading>
                       {stream.classes.length === 0 ? <p className="panel-message">No classes yet. Add the first class for this stream.</p>
-                        : <TableScroll><DataTable><TableHead><TableRow><TableCell scope="col">Class name</TableCell><TableCell scope="col">Level</TableCell></TableRow></TableHead><TableBody>{stream.classes.map((danceClass) => <TableRow key={danceClass.id}><TableCell>{danceClass.name}</TableCell><TableCell><span className="level-badge">{danceClass.level}</span></TableCell></TableRow>)}</TableBody></DataTable></TableScroll>}
+                        : <TableScroll><DataTable><TableHead><TableRow><TableCell scope="col">Class name</TableCell><TableCell scope="col">Level</TableCell></TableRow></TableHead><TableBody>{stream.classes.map((danceClass) => <TableRow key={danceClass.id}><TableCell>{danceClass.name}</TableCell><TableCell><Chip size="small" label={danceClass.level} /></TableCell></TableRow>)}</TableBody></DataTable></TableScroll>}
                     </ManagementPanel>)}</div>}
             </>}
       {modal && <AddCurriculumModal schoolId={schoolId} schoolName={schools.find((school) => school.id === schoolId)?.name ?? ''} stream={modal.stream} onClose={() => setModal(null)} onSaved={saved} />}

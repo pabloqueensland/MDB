@@ -1,0 +1,9 @@
+.inline-alert {
+  margin-bottom: 18px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.inline-alert .MuiAlert-message {
+  min-width: 0;
+}
