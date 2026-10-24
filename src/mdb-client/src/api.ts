@@ -6,15 +6,32 @@ export interface User { id: string; email: string; roles: string[]; memberships:
 export interface PlatformUser extends User { name: string }
 export interface School { id: string; name: string; slug: string }
 export interface CreateSchool { name: string; slug: string }
+export interface StreamClass { id: string; name: string; level: number }
+export interface DanceStream { id: string; name: string; classes: StreamClass[] }
+export interface Enrolment { streamId: string; streamName: string; classId: string; className: string; level: number; isActive: boolean }
+export interface SaveEnrolment { schoolId: string; userId: string; streamId: string; classId: string; isActive: boolean }
+export interface MoveClass extends StreamClass { streamId: string; streamName: string }
+export interface DanceMove {
+  id: string;
+  name: string;
+  level: number;
+  videoUrl: string;
+  description: string | null;
+  schoolId: string;
+  schoolName: string;
+  classes: MoveClass[];
+}
 export interface Tokens { accessToken: string; refreshToken: string; expiresIn: number }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   let response: Response;
+
   try {
     response = await fetch(path, options);
   } catch {
     throw new Error('Could not reach the API. Check that Docker is running and try again.');
   }
+
   if (!response.ok) {
     const problem = await response.json().catch(() => null);
     const messages = problem?.errors ? Object.values(problem.errors).flat().join(' ') : null;
@@ -24,7 +41,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
         ? 'You do not have permission to perform this action.'
         : 'The request could not be completed. Please try again.'));
   }
+
   const text = await response.text();
+
   return text ? JSON.parse(text) as T : undefined as T;
 }
 
@@ -35,6 +54,25 @@ const json = (body: unknown): RequestInit => ({
 });
 
 export const api = {
+  createStream: (schoolId: string, name: string, token: string) => request<DanceStream>(`/api/schools/${schoolId}/streams`, {
+    ...json({ name }), headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  }),
+  createClass: (schoolId: string, streamId: string, name: string, level: number, token: string) => request<StreamClass>(`/api/schools/${schoolId}/streams/${streamId}/classes`, {
+    ...json({ name, level }), headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  }),
+  listStreams: (schoolId: string, token: string, signal?: AbortSignal) => request<DanceStream[]>(`/api/schools/${schoolId}/streams`, {
+    headers: { Authorization: `Bearer ${token}` }, signal,
+  }),
+  listEnrolments: (schoolId: string, userId: string, token: string, signal?: AbortSignal) => request<Enrolment[]>(`/api/enrolments?${new URLSearchParams({ schoolId, userId })}`, {
+    headers: { Authorization: `Bearer ${token}` }, signal,
+  }),
+  saveEnrolment: (enrolment: SaveEnrolment, token: string) => request<Enrolment>('/api/enrolments', {
+    ...json(enrolment), method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  }),
+  listMoves: (token: string, signal?: AbortSignal) => request<DanceMove[]>('/api/moves', {
+    headers: { Authorization: `Bearer ${token}` }, signal,
+  }),
   listUsers: (token: string, signal?: AbortSignal) => request<PlatformUser[]>('/api/platform/users', {
     headers: { Authorization: `Bearer ${token}` }, signal,
   }),

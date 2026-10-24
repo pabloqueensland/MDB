@@ -5,25 +5,29 @@ import SchoolManagement from './SchoolManagement';
 import PeopleManagement from './PeopleManagement';
 import UsersManagement from './UsersManagement';
 import DashboardHome from './DashboardHome';
-import PageHeader from './shared/PageHeader';
+import MovesLibrary from './MovesLibrary';
+import StreamsManagement from './StreamsManagement';
 
-type Page = 'dashboard' | 'schools' | 'teachers' | 'students' | 'moves' | 'users';
+type Page = 'dashboard' | 'schools' | 'teachers' | 'students' | 'moves' | 'users' | 'streams';
 
 function allowedPages(user: User | null): Page[] {
   if (user?.roles?.includes('PlatformAdmin')) {
-    return ['dashboard', 'schools', 'teachers', 'students', 'moves', 'users'];
+    return ['dashboard', 'schools', 'teachers', 'students', 'moves', 'users', 'streams'];
   }
+
   if (user?.memberships?.some((membership) => membership.role === 'SchoolAdmin' || membership.role === 'SchoolManager')) {
-    return ['dashboard', 'teachers', 'students', 'moves'];
+    return ['dashboard', 'teachers', 'students', 'moves', 'streams'];
   }
+
   return ['dashboard', 'moves'];
 }
 
 const menu: { page: Page; label: string; icon: string; description: string }[] = [
   { page: 'schools', label: 'Schools', icon: '▤', description: 'Create and manage schools across MDB.' },
+  { page: 'streams', label: 'Streams & classes', icon: '≋', description: 'Manage dance styles and their class levels.' },
   { page: 'teachers', label: 'Teachers', icon: '◇', description: 'View teachers in the schools you manage.' },
   { page: 'students', label: 'Students', icon: '◉', description: 'View students in the schools you manage.' },
-  { page: 'moves', label: 'Moves', icon: '✳', description: 'Your dance move library will live here.' },
+  { page: 'moves', label: 'Moves', icon: '✳', description: 'Browse the moves taught at your schools.' },
   { page: 'users', label: 'All users', icon: '◌', description: 'View every account, including users without a school.' },
 ];
 
@@ -49,8 +53,10 @@ export default function Dashboard() {
   useEffect(() => {
     window.history.replaceState(null, '', '#/dashboard');
     setPage('dashboard');
+
     function navigate() {
       const route = window.location.hash.slice(2) as Page;
+
       if (allowedPages(user).includes(route)) {
         setPage(route);
       } else {
@@ -58,7 +64,9 @@ export default function Dashboard() {
         setPage('dashboard');
       }
     }
+
     window.addEventListener('hashchange', navigate);
+
     return () => window.removeEventListener('hashchange', navigate);
   }, [user]);
 
@@ -84,7 +92,8 @@ export default function Dashboard() {
         {isPlatform && page === 'schools' && <SchoolManagement />}
         {isPlatform && page === 'users' && <UsersManagement />}
         {allowed.includes(page) && (page === 'teachers' || page === 'students') && <PeopleManagement key={page} role={page === 'teachers' ? 'Instructor' : 'Student'} />}
-        {page === 'moves' && <section aria-labelledby="moves-title"><PageHeader titleId="moves-title" eyebrow="YOUR PRACTICE" title="Moves" description="A home for the steps you’re learning." /><div className="dashboard-welcome"><h2>The move library is coming next.</h2><p>Videos and progress tracking will appear here once the library is added.</p></div></section>}
+        {page === 'moves' && <MovesLibrary />}
+        {allowed.includes('streams') && page === 'streams' && <StreamsManagement />}
       </div>
       <footer className="main-footer"><span>MADE FOR YOUR NEXT MOVE.</span><span>MDB / 2026</span></footer>
     </main>

@@ -12,16 +12,21 @@ export default function UsersManagement() {
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
   const [filter, setFilter] = useState('');
+
   useEffect(() => {
     const controller = new AbortController();
+
     async function load() {
       if (!token) {
         return;
       }
+
       setLoading(true);
       setError('');
+
       try {
         const people = await api.listUsers(token, controller.signal);
+
         if (!controller.signal.aborted) {
           setUsers(people);
         }
@@ -35,10 +40,14 @@ export default function UsersManagement() {
         }
       }
     }
+
     void load();
+
     return () => controller.abort();
   }, [token, attempt]);
+
   const visible = users.filter((user) => `${user.name} ${user.email} ${user.roles.join(' ')} ${user.memberships.map((m) => `${m.schoolName} ${m.role}`).join(' ')}`.toLowerCase().includes(filter.toLowerCase()));
+
   return <section aria-labelledby="users-title"><PageHeader titleId="users-title" eyebrow="PLATFORM ADMIN" title="All users" description="Every account, including platform admins and users without a school. View as a user to explore their access." />
     <label htmlFor="user-search">Search users</label><input id="user-search" type="search" value={filter} onChange={(event) => setFilter(event.target.value)} placeholder="Search names, emails, schools or roles" />
     {loading ? <p role="status">Loading users…</p> : error ? <><p className="error" role="alert">{error}</p><button className="secondary" onClick={() => setAttempt((value) => value + 1)}>Try again</button></>

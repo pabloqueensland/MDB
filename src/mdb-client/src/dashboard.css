@@ -3,6 +3,29 @@
   grid-template-columns: 244px minmax(0, 1fr);
   min-height: 100svh;
 }
+.curriculum-school { max-width: 420px; margin-bottom: 28px; }
+.curriculum-school label { display: block; }
+.curriculum-school select { font: inherit; font-size: 12px; color: #213730; width: 100%; min-height: 46px; border: 1px solid #d9ded3; border-radius: 6px; background: #fffefa; padding: 12px 14px; }
+.curriculum-school select:focus { outline: 2px solid #648d78; outline-offset: 2px; }
+.stream-list { display: grid; gap: 25px; }
+.stream-count { display: block; color: #7e8776; font-size: 11px; margin-top: 8px; }
+.row-actions { display: flex; gap: 8px; align-items: center; }
+.enrolments-modal { width: min(620px, calc(100% - 32px)); }
+.enrolment-list { margin-bottom: 24px; }
+.enrolment-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0; border-bottom: 1px solid #dce1d4; }
+.enrolment-row strong { display: block; font-size: 13px; }
+.enrolment-row small { display: block; font-size: 11px; color: #7e8776; margin-top: 7px; }
+.move-filters { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 18px; margin-bottom: 26px; }
+.move-filters label { display: block; }
+.move-filters input,.move-filters select { width: 100%; min-height: 46px; margin: 0; padding: 12px 14px; font: inherit; font-size: 12px; color: #213730; background: #fffefa; border: 1px solid #d9ded3; border-radius: 6px; }
+.move-filters select:focus { outline: 2px solid #648d78; outline-offset: 2px; }
+.move-description { font-size: 11px; line-height: 1.8; color: #7e8776; margin-bottom: 0; }
+.level-badge { display: inline-block; padding: 5px 9px; border-radius: 5px; background: #edf1e0; color: #426245; }
+.move-class-labels { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.move-class-labels span { font-size: 10px; color: #62765d; background: #f0f2e8; border-radius: 4px; padding: 4px 7px; }
+.video-placeholder { font-size: 11px; color: #8a907f; white-space: nowrap; }
+.moves-table video { width: 220px; max-width: 100%; border-radius: 6px; background: #193b32; }
+@media(max-width:850px) { .move-filters { grid-template-columns: 1fr; gap: 14px; } .moves-table { min-width: 600px; } }
 .impersonation-banner { position: sticky; top: 0; z-index: 5; background: #f2e6b8; color: #514018; border: 1px solid #d8c378; border-radius: 8px; margin-top: 20px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .impersonation-banner strong { display: block; font-size: 13px; overflow-wrap: anywhere; }
 .impersonation-banner span { display: block; font-size: 11px; line-height: 1.8; margin-top: 5px; }

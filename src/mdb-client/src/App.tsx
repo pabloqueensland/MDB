@@ -23,23 +23,30 @@ export default function App() {
     if (!expiresAt) {
       return;
     }
+
     const timer = window.setTimeout(logout, Math.max(0, expiresAt - Date.now()));
+
     return () => window.clearTimeout(timer);
   }, [expiresAt, logout]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError('');
+
     if (mode === 'register' && password !== confirmPassword) {
       setFormError('Your passwords do not match.');
+
       return;
     }
+
     const credentials = { email: email.trim(), password };
+
     if (mode === 'register') {
       await register(credentials);
     } else {
       await login(credentials);
     }
+
     setPassword('');
     setConfirmPassword('');
   }

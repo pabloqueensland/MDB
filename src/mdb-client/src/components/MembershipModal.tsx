@@ -21,16 +21,20 @@ export default function MembershipModal({ schools, initialRole, onClose, onSaved
   useEffect(() => {
     const element = dialog.current;
     element?.showModal();
+
     return () => element?.close();
   }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     if (!token || saving) {
       return;
     }
+
     setSaving(true);
     setError('');
+
     try {
       await api.assignMembership({ schoolId, email: email.trim(), role }, token);
       onSaved();
@@ -42,6 +46,7 @@ export default function MembershipModal({ schools, initialRole, onClose, onSaved
 
   return <dialog ref={dialog} className="school-modal" aria-labelledby="member-title" onCancel={(event) => {
     event.preventDefault();
+
     if (!saving) {
       onClose();
     }

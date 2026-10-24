@@ -26,20 +26,27 @@ export default function AddSchoolModal({ onClose, onCreated }: Props) {
   useEffect(() => {
     const element = dialog.current;
     element?.showModal();
+
     return () => element?.close();
   }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     if (!accessToken || isSaving) {
       return;
     }
+
     setError(null);
+
     if (!name.trim()) {
       setError('Enter a school name.');
+
       return;
     }
+
     setIsSaving(true);
+
     try {
       const school = await api.createSchool({ name: name.trim(), slug }, accessToken);
       onCreated(school);
@@ -53,6 +60,7 @@ export default function AddSchoolModal({ onClose, onCreated }: Props) {
     <dialog ref={dialog} className="school-modal" aria-labelledby="add-school-title" aria-describedby="add-school-description"
       onCancel={(event) => {
         event.preventDefault();
+
         if (!isSaving) {
           onClose();
         }
@@ -65,6 +73,7 @@ export default function AddSchoolModal({ onClose, onCreated }: Props) {
         <input id="school-name" autoFocus required maxLength={200} placeholder="e.g. Brisbane Salsa" value={name} disabled={isSaving}
           onChange={(event) => {
             setName(event.target.value);
+
             if (!slugEdited) {
               setSlug(toSlug(event.target.value));
             }

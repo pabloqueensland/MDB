@@ -5,6 +5,7 @@ import { useAuthStore } from '../stores/authStore';
 import MembershipModal from './MembershipModal';
 import ImpersonateButton from './ImpersonateButton';
 import PageHeader from './shared/PageHeader';
+import EnrolmentsModal from './EnrolmentsModal';
 
 export default function PeopleManagement({ role }: { role: 'Instructor' | 'Student' }) {
   const token = useAuthStore((state) => state.accessToken);
@@ -16,18 +17,22 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
   const [notice, setNotice] = useState('');
   const [open, setOpen] = useState(false);
   const [revision, setRevision] = useState(0);
+  const [enrolStudent, setEnrolStudent] = useState<Member | null>(null);
   const title = role === 'Instructor' ? 'Teachers' : 'Students';
   const adminSession = useAuthStore((state) => state.adminSession);
   const canImpersonate = user?.roles.includes('PlatformAdmin') && !adminSession;
 
   useEffect(() => {
     const controller = new AbortController();
+
     async function load() {
       if (!token || !user) {
         return;
       }
+
       setLoading(true);
       setError('');
+
       try {
         const [people, available] = await Promise.all([
           api.listMembers(token, undefined, controller.signal),
@@ -35,6 +40,7 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
             : Promise.resolve((user.memberships ?? []).filter((item) => item.role === 'SchoolManager' || item.role === 'SchoolAdmin')
               .map((item) => ({ id: item.schoolId, name: item.schoolName, slug: '' }))),
         ]);
+
         if (!controller.signal.aborted) {
           setMembers(people);
           setSchools(available);
@@ -49,7 +55,9 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
         }
       }
     }
+
     void load();
+
     return () => controller.abort();
   }, [token, user, revision]);
 
@@ -57,7 +65,8 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
     if (items.length === 0) {
       return <p className="panel-message">{empty}</p>;
     }
-    return <div className="school-table-scroll"><table className="school-table"><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">School</th><th scope="col">Role</th>{canImpersonate && <th scope="col">Action</th>}</tr></thead><tbody>{items.map((member) => <tr key={`${member.schoolId}-${member.userId}`}><td>{member.name || member.email}</td><td>{member.email}</td><td>{member.schoolName}</td><td>{roleLabel(member.role)}</td>{canImpersonate && <td><ImpersonateButton userId={member.userId} /></td>}</tr>)}</tbody></table></div>;
+
+    return <div className="school-table-scroll"><table className="school-table"><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">School</th><th scope="col">Role</th><th scope="col">Actions</th></tr></thead><tbody>{items.map((member) => <tr key={`${member.schoolId}-${member.userId}`}><td>{member.name || member.email}</td><td>{member.email}</td><td>{member.schoolName}</td><td>{roleLabel(member.role)}</td><td><div className="row-actions">{member.role === 'Student' && <button className="secondary" onClick={() => setEnrolStudent(member)}>Enrolments</button>}{canImpersonate && <ImpersonateButton userId={member.userId} />}</div></td></tr>)}</tbody></table></div>;
   }
 
   return <section aria-labelledby="people-title">
@@ -75,6 +84,7 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
           <div className="schools-panel team-panel"><div className="schools-panel-heading"><h2>School leadership</h2></div>{table(members.filter((member) => member.role === 'SchoolManager' || member.role === 'SchoolAdmin'), 'No school managers or studio admins have been assigned yet.')}</div>
           {schools.length === 0 && <p className="field-help team-help">Create a school from Schools before assigning users.</p>}</>}
     {open && <MembershipModal schools={schools} initialRole={role} onClose={() => setOpen(false)} onSaved={() => { setOpen(false); setNotice('School membership saved.'); setRevision((value) => value + 1); }} />}
+    {enrolStudent && <EnrolmentsModal key={`${enrolStudent.schoolId}-${enrolStudent.userId}`} student={enrolStudent} onClose={() => setEnrolStudent(null)} />}
   </section>;
 }
 

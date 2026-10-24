@@ -16,14 +16,18 @@ export default function SchoolManagement() {
 
   useEffect(() => {
     const controller = new AbortController();
+
     async function load() {
       if (!accessToken) {
         return;
       }
+
       setIsLoading(true);
       setError(null);
+
       try {
         const result = await api.listSchools(accessToken, controller.signal);
+
         if (!controller.signal.aborted) {
           setSchools(result);
         }
@@ -37,12 +41,15 @@ export default function SchoolManagement() {
         }
       }
     }
+
     void load();
+
     return () => controller.abort();
   }, [accessToken, attempt]);
 
   function created(school: School) {
     setSchools((current) => [...current, school].sort((a, b) => a.name.localeCompare(b.name)));
+
     setNotice(`${school.name} was created successfully.`);
     setShowModal(false);
   }

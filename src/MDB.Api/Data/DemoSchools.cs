@@ -51,18 +51,61 @@ public static class DemoSchools
         {
             var school = new DanceSchool { Name = seed.Name, Slug = seed.Slug };
             database.DanceSchools.Add(school);
+
+            if (seed.Slug == "midnight-motion")
+            {
+                var salsa = new DanceStream { Name = "Salsa On1", School = school };
+                var salsaOn2 = new DanceStream { Name = "Salsa On2", School = school };
+                var bachata = new DanceStream { Name = "Bachata", School = school };
+                school.Streams.Add(salsa);
+                school.Streams.Add(salsaOn2);
+                school.Streams.Add(bachata);
+                school.Classes.Add(new DanceClass { Name = "Salsa 1", Level = 1m, School = school, Stream = salsa });
+                school.Classes.Add(new DanceClass
+                {
+                    Name = "Salsa 1.5",
+                    Level = 1.5m,
+                    School = school,
+                    Stream = salsa,
+                    Moves = Salsa15Moves.Create(school)
+                });
+                school.Classes.Add(new DanceClass { Name = "Salsa 2", Level = 2m, School = school, Stream = salsa });
+                school.Classes.Add(new DanceClass { Name = "Salsa On2 1", Level = 1m, School = school, Stream = salsaOn2 });
+                school.Classes.Add(new DanceClass { Name = "Bachata 1", Level = 1m, School = school, Stream = bachata });
+                school.Classes.Add(new DanceClass { Name = "Bachata 4", Level = 4m, School = school, Stream = bachata });
+            }
+
             foreach (var person in seed.People)
             {
                 var email = $"{person.Alias}@mdb.example";
                 var user = new IdentityUser { UserName = email, Email = email, EmailConfirmed = true };
                 RequireSuccess(await users.CreateAsync(user, password));
                 RequireSuccess(await users.AddClaimAsync(user, new Claim(DisplayNameClaim, person.Name)));
-                database.SchoolMemberships.Add(new SchoolMembership
+                var membership = new SchoolMembership
                 {
                     School = school,
                     UserId = user.Id,
                     Role = person.Role
-                });
+                };
+                database.SchoolMemberships.Add(membership);
+
+                if (seed.Slug == "midnight-motion" && person.Role == SchoolRole.Student)
+                {
+                    var className = person.Alias switch
+                    {
+                        "nova.quinn" => "Salsa 1.5",
+                        "leo.sterling" => "Salsa 1",
+                        "ivy.moon" => "Bachata 4",
+                        _ => "Salsa 2"
+                    };
+                    var enrolledClass = school.Classes.Single(x => x.Name == className);
+                    database.ClassEnrolments.Add(new ClassEnrolment
+                    {
+                        SchoolId = school.Id, UserId = user.Id,
+                        StreamId = enrolledClass.Stream.Id, ClassId = enrolledClass.Id,
+                        Membership = membership, Class = enrolledClass
+                    });
+                }
             }
         }
 

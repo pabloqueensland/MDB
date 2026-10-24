@@ -40,6 +40,13 @@ Coverage:
   access denial, and attempted leadership demotion or privilege escalation.
 - Platform-only impersonation, target permissions, nested impersonation denial,
   session revocation/expiry, revoked admin access, and unassigned demo users.
+- Move listing/class filters, student and teacher access, school isolation,
+  platform-admin access, and empty results for users without memberships.
+- Stream/class enrolment access, fractional class levels, lower-level access,
+  Salsa On1/On2 and Bachata separation, deactivation, enrolment permissions, and
+  database rejection of a class paired with the wrong stream.
+- Stream and class creation by platform/school administrators, teacher/student
+  denial, duplicate streams, invalid class levels, and cross-school rejection.
 
 To run one area:
 

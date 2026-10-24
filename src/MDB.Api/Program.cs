@@ -9,6 +9,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         ?? throw new InvalidOperationException("Configure ConnectionStrings:DefaultConnection.")));
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddScoped<MDB.Api.SchoolAccess>();
 builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
     {
         options.User.RequireUniqueEmail = true;

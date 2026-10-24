@@ -6,6 +6,39 @@ See [tests/README.md](tests/README.md) for the isolated SQL Server integration
 suite. Run `dotnet test MDB.slnx` with Docker Desktop running. The suite creates
 its own disposable SQL Server container and does not touch your development DB.
 
+## Classes and moves
+
+`DanceClass` has an ID, name, decimal level, school, and required stream. `DanceClass.Moves` and
+`Move.Classes` form a many-to-many relationship through `ClassMoves`. A move can
+be shared by several classes within its school. Composite foreign keys enforce
+that both sides of a link belong to the same school and the join key prevents
+duplicate links. The existing move level is retained.
+
+Deleting a class removes its links, not its moves. Unlink a move from its classes
+before deleting it; this avoids SQL Server's multiple cascade path restriction.
+Development seed data adds **Salsa 1** (level 1), **Salsa 1.5** (level 1.5), and
+**Salsa 2** (level 2) to **Midnight Motion**. Salsa 1.5 includes 37 distinct moves
+from the supplied curriculum screenshot, including partner work and shines.
+Repeated names and obvious abbreviations are merged, and technical skills and
+block/category labels are omitted. All are linked through ClassMoves and have
+level 1.5. Video URLs are empty until real clips are supplied. Salsa 1 and Salsa 2
+have no moves yet.
+Streams and classes are configured through the stream API below. Students have
+stream/class enrolments managed from the Students page.
+
+### Managing streams and classes
+
+Platform admins, school managers, and studio admins have a **Streams & classes**
+menu item and dashboard card. Choose a school, then **Add stream** to create a
+dance style. Each stream shows its class list with an **Add class** button.
+Class names and decimal levels (such as 1.5) are entered in a modal. Success
+refreshes the list; duplicate streams and invalid input are shown as errors.
+
+Platform admins can choose any school. Managers and studio admins can choose
+only schools where they hold those roles. Teachers and students do not see this
+management page, and direct API creation attempts are denied. New classes become
+available for enrolment immediately; they start without move links.
+
 ## React client
 
 With the Docker API running, start the frontend in a second terminal:
@@ -206,7 +239,64 @@ Teachers and Students display memberships from `GET /api/memberships`, including
 school leadership. Platform admins see every school's memberships; studio admins
 and managers see only schools where they hold an administrative membership.
 Teachers and students cannot read this directory, even by calling the endpoint
-directly. Moves is currently a placeholder for the future library.
+directly.
+
+The Moves page loads `GET /api/moves` and supports text search and school/class
+filters. Each row shows name, level, school, and linked classes. Missing videos
+show **Video coming soon**; supplied HTTP(S) videos use the browser video player.
+Platform admins can fetch every school's moves. Other users can fetch only moves
+from schools where they have memberships; unassigned users get an empty list.
+Students need active enrolments. A move must be linked to at least one class in
+the same school and stream, at a level less than or equal to the enrolled class.
+The comparison uses **DanceClass.Level**, not Move.Level. Teachers, studio admins,
+and school managers keep full access within their schools, even to unclassified
+moves. Platform admins can see every move. Students cannot see unclassified moves.
+Optional `schoolId`, `streamId`, and `classId` query parameters narrow results
+without bypassing these rules. Class labels in results are also access-scoped.
+
+### Streams and enrolments
+
+`DanceStreams` are school-owned dance styles such as Salsa On1, Salsa On2, and
+Bachata. Each class belongs to exactly one stream. `ClassEnrolments` contains
+SchoolId, UserId, StreamId, ClassId, and IsActive. Composite foreign keys enforce
+that the membership, class, and stream belong to the same school and that the
+class belongs to the specified stream. Duplicate enrolments are prevented.
+
+On **Students**, click **Enrolments** beside a student. Select a stream and class
+to activate an enrolment. Existing enrolments can be deactivated/reactivated.
+Several active enrolments are allowed, including across streams. Access is the
+union of their qualifying classes. To reduce a student's level, deactivate any
+higher enrolment; adding a lower one does not cancel existing access.
+
+School managers, studio admins, and platform admins can manage enrolments in
+their permitted schools. Students may read their own enrolments, but cannot
+change them. Only memberships currently assigned the Student role are enrolable.
+Changes take effect on the next move fetch without a new token. Reload or
+revisit Moves to refresh an already-open list. Existing public CDN URLs are not
+revoked by an enrolment change; private video signing is a separate future step.
+
+| Endpoint | Purpose |
+| --- | --- |
+| GET /api/schools/{schoolId}/streams | List school streams with classes (school members/platform admins) |
+| POST /api/schools/{schoolId}/streams | Create a stream with `{ "name": "Bachata" }` (school administrators) |
+| POST /api/schools/{schoolId}/streams/{streamId}/classes | Create a class with `{ "name": "Bachata 4", "level": 4 }` (school administrators) |
+| GET /api/enrolments?schoolId=...&userId=... | List active/inactive enrolments (self or permitted administrator) |
+| PUT /api/enrolments | Activate/deactivate using schoolId, userId, streamId, classId, isActive |
+
+Midnight Motion seeds three streams: Salsa On1, Salsa On2, and Bachata. The
+existing Salsa 1/1.5/2 classes belong to Salsa On1. Additional empty classes are
+Salsa On2 1, Bachata 1, and Bachata 4. Demo student enrolments:
+
+| Student | Enrolled class | Current seeded move access |
+| --- | --- | --- |
+| Nova Quinn | Salsa On1 → Salsa 1.5 | All 37 Salsa 1.5 moves |
+| Leo Sterling | Salsa On1 → Salsa 1 | No moves yet; level 1 has no seeded moves |
+| Ivy Moon | Bachata → Bachata 4 | No Salsa access; Bachata has no seeded moves |
+| Zane River | Salsa On1 → Salsa 2 | All 37 Salsa 1.5 moves through lower-level access |
+
+Other demo students have no enrolments yet. Removing a school membership with
+enrolments requires removing its enrolment records first; SQL Server's delete
+rules prevent dangling enrolments.
 
 **Assign school role** opens a form for a registered user's email, school, and
 role. Saving adds or updates the user's membership using `PUT /api/memberships`.
