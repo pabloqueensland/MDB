@@ -39,3 +39,37 @@
   justify-content: space-between;
   gap: 15px;
 }
+
+@media (max-width:650px) {
+  .management-card {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px 12px;
+    padding: 16px;
+  }
+
+  .management-card .card-icon {
+    width: 36px;
+    height: 36px;
+    margin: 0;
+    font-size: 20px;
+  }
+
+  .management-card h2 {
+    min-width: 0;
+    margin: 0;
+    font-size: 17px;
+    overflow-wrap: anywhere;
+  }
+
+  .management-card p {
+    grid-column: 1 / -1;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .management-card .card-link {
+    grid-column: 1 / -1;
+  }
+}

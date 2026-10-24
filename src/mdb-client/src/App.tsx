@@ -5,7 +5,9 @@ import Button from './components/shared/Button';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useAuthStore } from './stores/authStore';
-import Dashboard from './components/Dashboard';
+import Dashboard from './components/dashboard/Dashboard';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 
 export default function App() {
   const user = useAuthStore((state) => state.user);
@@ -89,11 +91,24 @@ export default function App() {
             <h2 id="auth-title">{mode === 'login' ? 'Back for more.' : 'Make your first move.'}</h2>
             <p className="intro">{mode === 'login' ? 'Sign in and pick up where you left off.' : 'Create your account. Find your rhythm.'}</p>
             <form onSubmit={submit}>
-              <label htmlFor="email">Email address</label>
-              <input id="email" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required disabled={isLoading} />
-              <label htmlFor="password">Password</label>
-              <div className="password-field"><input id="password" type={showPassword ? 'text' : 'password'} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} placeholder="Enter your password" value={password} onChange={(event) => setPassword(event.target.value)} required minLength={mode === 'register' ? 6 : undefined} disabled={isLoading} aria-describedby={mode === 'register' ? 'password-help' : undefined} /><Button variant="ghost" size="compact" type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>{showPassword ? 'Hide' : 'Show'}</Button></div>
-              {mode === 'register' && <><p id="password-help" className="field-help">At least 6 characters, with uppercase, lowercase, a number and a symbol.</p><label htmlFor="confirm">Confirm password</label><input id="confirm" type={showPassword ? 'text' : 'password'} autoComplete="new-password" placeholder="Enter your password again" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required disabled={isLoading} /></>}
+              <TextField id="email" label="Email address" type="email" autoComplete="email" fullWidth
+                placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required disabled={isLoading} />
+
+              <TextField id="password" label="Password" type={showPassword ? 'text' : 'password'} fullWidth
+                autoComplete={mode === 'register' ? 'new-password' : 'current-password'} placeholder="Enter your password"
+                value={password} onChange={(event) => setPassword(event.target.value)} required disabled={isLoading}
+                helperText={mode === 'register' ? 'At least 6 characters, with uppercase, lowercase, a number and a symbol.' : undefined}
+                slotProps={{
+                  htmlInput: { minLength: mode === 'register' ? 6 : undefined },
+                  input: { endAdornment: <InputAdornment position="end">
+                    <Button variant="ghost" size="compact" disabled={isLoading} aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>{showPassword ? 'Hide' : 'Show'}</Button>
+                  </InputAdornment> },
+                }} />
+
+              {mode === 'register' && <TextField id="confirm" label="Confirm password" fullWidth
+                type={showPassword ? 'text' : 'password'} autoComplete="new-password" placeholder="Enter your password again"
+                value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required disabled={isLoading} />}
               {(formError || error) && <p className="error" role="alert">{formError || error}</p>}
               <Button fullWidth type="submit" disabled={isLoading}>{isLoading ? 'One moment…' : mode === 'login' ? 'Sign in' : 'Create account'}<span aria-hidden="true">↗</span></Button>
             </form>

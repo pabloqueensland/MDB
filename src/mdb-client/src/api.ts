@@ -22,6 +22,7 @@ export interface DanceMove {
   schoolName: string;
   classes: MoveClass[];
   isMastered: boolean;
+  isFavorite: boolean;
   canMarkMastered: boolean;
 }
 export interface Tokens { accessToken: string; refreshToken: string; expiresIn: number }
@@ -57,6 +58,10 @@ const json = (body: unknown): RequestInit => ({
 });
 
 export const api = {
+  setMoveFavorite: (id: string, isFavorite: boolean, token: string) => request<{ moveId: string; isFavorite: boolean }>(`/api/moves/${id}/favorite`, {
+    ...json({ isFavorite }), method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  }),
   updateMove: (id: string, move: Pick<DanceMove, 'name' | 'level' | 'videoUrl' | 'description' | 'block'>, token: string) => request<void>(`/api/moves/${id}`, {
     ...json(move), method: 'PUT',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },

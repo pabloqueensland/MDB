@@ -1,0 +1,38 @@
+.edit-move-dialog .MuiDialog-paper {
+  background: #faf9f5;
+  color: #213730;
+}
+
+.edit-move-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.edit-move-heading h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.edit-move-description {
+  margin-bottom: 24px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.edit-move-actions {
+  padding: 16px 24px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.move-edit-fields {
+  display: grid;
+  gap: 20px;
+  border: 0;
+  padding: 8px 0 0;
+  margin: 0;
+  min-width: 0;
+}
+

@@ -1,8 +1,8 @@
 import './MoveVideoModal.css';
 import { useState } from 'react';
-import type { DanceMove } from '../api';
-import Button from './shared/Button';
-import Modal from './shared/Modal';
+import type { DanceMove } from '../../api';
+import Button from '../shared/Button';
+import Modal from '../shared/Modal';
 
 export default function MoveVideoModal({ move, onClose }: { move: DanceMove; onClose: () => void }) {
   const [failed, setFailed] = useState(false);

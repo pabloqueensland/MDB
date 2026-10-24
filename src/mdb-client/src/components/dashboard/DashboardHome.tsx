@@ -1,6 +1,6 @@
 import './DashboardHome.css';
-import ManagementCard from './shared/ManagementCard';
-import type { ManagementCardProps } from './shared/ManagementCard';
+import ManagementCard from '../shared/ManagementCard';
+import type { ManagementCardProps } from '../shared/ManagementCard';
 
 interface DashboardHomeProps {
   cards: ManagementCardProps[];

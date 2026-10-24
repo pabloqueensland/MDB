@@ -1,6 +1,6 @@
 import './ImpersonateButton.css';
-import Button from './shared/Button';
-import { useAuthStore } from '../stores/authStore';
+import Button from '../shared/Button';
+import { useAuthStore } from '../../stores/authStore';
 
 export default function ImpersonateButton({ userId }: { userId: string }) {
   const user = useAuthStore((state) => state.user);

@@ -1,0 +1,92 @@
+@import '../shared/Modal.css';
+
+.school-modal.student-details-modal {
+  width: min(620px, calc(100% - 32px));
+}
+
+.student-profile {
+  display: grid;
+  gap: 16px;
+  margin: 0 0 24px;
+  padding: 16px;
+  border: 1px solid #dce1d4;
+  border-radius: 8px;
+  background: #fffefa;
+}
+
+.student-profile dt {
+  margin-bottom: 4px;
+  font-size: 11px;
+  color: #65715e;
+}
+
+.student-profile dd {
+  margin: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.student-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.student-section-heading h3,
+.student-add-enrolment h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.student-add-enrolment {
+  border: 1px solid #dce1d4;
+  border-radius: 8px;
+  background: #fffefa;
+}
+
+.student-add-enrolment::before {
+  display: none;
+}
+
+.student-enrolment-info {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.student-enrolment-info .MuiChip-root {
+  margin-top: 8px;
+}
+
+@media (max-width:650px) {
+  .student-details-modal .enrolment-row {
+    flex-wrap: wrap;
+  }
+}
+
+.enrolment-list {
+  margin-bottom: 24px;
+}
+
+.enrolment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #dce1d4;
+}
+
+.enrolment-row strong {
+  display: block;
+  font-size: 13px;
+}
+
+.enrolment-row small {
+  display: block;
+  font-size: 11px;
+  color: #7e8776;
+  margin-top: 7px;
+}

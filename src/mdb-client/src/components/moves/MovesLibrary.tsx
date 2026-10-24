@@ -1,11 +1,13 @@
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
 import './MovesLibrary.css';
-import ManagementPanel, { PanelHeading } from './shared/ManagementPanel';
-import Button from './shared/Button';
+import ManagementPanel, { PanelHeading } from '../shared/ManagementPanel';
+import Button from '../shared/Button';
 import { useEffect, useRef, useState } from 'react';
-import { api } from '../api';
-import type { DanceMove } from '../api';
-import { useAuthStore } from '../stores/authStore';
-import SearchInput from './shared/SearchInput';
+import { api } from '../../api';
+import type { DanceMove } from '../../api';
+import { useAuthStore } from '../../stores/authStore';
+import SearchInput from '../shared/SearchInput';
 import MovesTable from './MovesTable';
 import MovesBlockView from './MovesBlockView';
 import EditMoveModal from './EditMoveModal';
@@ -14,6 +16,7 @@ import MoveVideoModal from './MoveVideoModal';
 export default function MovesLibrary() {
   const token = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
+  const isStudent = !user?.roles.includes('PlatformAdmin') && user?.memberships.some((membership) => membership.role === 'Student');
   const [moves, setMoves] = useState<DanceMove[]>([]);
   const [editingMove, setEditingMove] = useState<DanceMove | null>(null);
   const [watchingMove, setWatchingMove] = useState<DanceMove | null>(null);
@@ -25,7 +28,7 @@ export default function MovesLibrary() {
   const [schoolId, setSchoolId] = useState('');
   const [classId, setClassId] = useState('');
   const [streamId, setStreamId] = useState('');
-  const [view, setView] = useState<'list' | 'blocks'>('list');
+  const [view, setView] = useState<'list' | 'blocks' | 'favorites'>(isStudent ? 'blocks' : 'list');
   const [savingMoveIds, setSavingMoveIds] = useState<Set<string>>(new Set());
   const pendingMoves = useRef(new Set<string>());
   const [masteryError, setMasteryError] = useState('');
@@ -98,6 +101,33 @@ export default function MovesLibrary() {
     }
   }
 
+  async function changeFavorite(moveId: string, isFavorite: boolean) {
+    if (!token || pendingMoves.current.has(moveId)) {
+      return;
+    }
+
+    pendingMoves.current.add(moveId);
+    setSavingMoveIds(new Set(pendingMoves.current));
+    setMasteryError('');
+    setMasteryNotice('');
+
+    try {
+      const result = await api.setMoveFavorite(moveId, isFavorite, token);
+
+      if (useAuthStore.getState().accessToken !== token) {
+        return;
+      }
+
+      setMoves((current) => current.map((move) => move.id === moveId ? { ...move, isFavorite: result.isFavorite } : move));
+      setMasteryNotice(result.isFavorite ? 'Move added to favorites.' : 'Move removed from favorites.');
+    } catch (cause) {
+      setMasteryError(cause instanceof Error ? cause.message : 'Could not save favorite. Please try again.');
+    } finally {
+      pendingMoves.current.delete(moveId);
+      setSavingMoveIds(new Set(pendingMoves.current));
+    }
+  }
+
   const schools = [...new Map([...schoolOptions, ...moves.map((move) => [move.schoolId, move.schoolName] as [string, string])]).entries()]
     .sort((a, b) => a[1].localeCompare(b[1]));
   const showSchoolFilter = schools.length > 1;
@@ -111,6 +141,7 @@ export default function MovesLibrary() {
   const streamClasses = classes.filter((danceClass) => !streamId || danceClass.streamId === streamId);
   const term = search.trim().toLowerCase();
   const visible = schoolMoves.filter((move) => (!classId || move.classes.some((danceClass) => danceClass.id === classId))
+    && (view !== 'favorites' || move.isFavorite)
     && (!streamId || move.classes.some((danceClass) => danceClass.streamId === streamId))
     && `${move.name} ${move.description ?? ''} ${move.block ?? ''}`.toLowerCase().includes(term));
 
@@ -124,9 +155,21 @@ export default function MovesLibrary() {
             : <>
               <div className={`move-filters${showSchoolFilter ? '' : ' move-filters--single-school'}`}>
                 <SearchInput label="Search moves" placeholder="e.g. Titanic or Copa" value={search} onChange={setSearch} />
-                {showSchoolFilter && <div><label htmlFor="move-school">School</label><select id="move-school" value={schoolId} onChange={(event) => { setSchoolId(event.target.value); setStreamId(''); setClassId(''); }}><option value="">All schools</option>{schools.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></div>}
-                <div><label htmlFor="move-stream">Stream</label><select id="move-stream" value={streamId} onChange={(event) => { setStreamId(event.target.value); setClassId(''); }}><option value="">All streams</option>{streams.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></div>
-                <div><label htmlFor="move-class">Class</label><select id="move-class" value={classId} onChange={(event) => setClassId(event.target.value)}><option value="">All classes</option>{streamClasses.map((danceClass) => <option key={danceClass.id} value={danceClass.id}>{danceClass.name}</option>)}</select></div>
+                {showSchoolFilter && <TextField select fullWidth label="School" id="move-school" value={schoolId}
+                  onChange={(event) => { setSchoolId(event.target.value); setStreamId(''); setClassId(''); }}>
+                  <MenuItem value="">All schools</MenuItem>
+                  {schools.map(([id, name]) => <MenuItem key={id} value={id}>{name}</MenuItem>)}
+                </TextField>}
+                <TextField select fullWidth label="Stream" id="move-stream" value={streamId}
+                  onChange={(event) => { setStreamId(event.target.value); setClassId(''); }}>
+                  <MenuItem value="">All streams</MenuItem>
+                  {streams.map(([id, name]) => <MenuItem key={id} value={id}>{name}</MenuItem>)}
+                </TextField>
+                <TextField select fullWidth label="Class" id="move-class" value={classId}
+                  onChange={(event) => setClassId(event.target.value)}>
+                  <MenuItem value="">All classes</MenuItem>
+                  {streamClasses.map((danceClass) => <MenuItem key={danceClass.id} value={danceClass.id}>{danceClass.name}</MenuItem>)}
+                </TextField>
               </div>
               {masteryError && <p className="error" role="alert">{masteryError}</p>}
               <p className="mastery-notice" role="status">{masteryNotice}</p>
@@ -134,14 +177,15 @@ export default function MovesLibrary() {
                 <PanelHeading className="moves-view-toolbar">
                   <div><h2>Move library</h2><span className="stream-count" role="status">{visible.length} {visible.length === 1 ? 'move' : 'moves'}</span></div>
                   <div className="view-toggle" role="group" aria-label="Move visualization">
-                    <Button variant="segmented" size="compact" type="button" aria-pressed={view === 'blocks'} onClick={() => setView('blocks')}>Toggle Block View</Button>
-                    <Button variant="segmented" size="compact" type="button" aria-pressed={view === 'list'} onClick={() => setView('list')}>Toggle Full list</Button>
+                    <Button variant="segmented" size="compact" type="button" aria-pressed={view === 'blocks'} onClick={() => setView('blocks')}>{isStudent ? 'See blocks' : 'Toggle Block View'}</Button>
+                    <Button variant="segmented" size="compact" type="button" aria-pressed={view === (isStudent ? 'favorites' : 'list')}
+                      onClick={() => setView(isStudent ? 'favorites' : 'list')}>{isStudent ? 'See favorites' : 'Toggle Full list'}</Button>
                   </div>
                 </PanelHeading>
-                {visible.length === 0 ? <p className="panel-message">No moves match your filters.</p>
+                {visible.length === 0 ? <p className="panel-message">{view === 'favorites' ? 'No favorites match your filters. Use the star beside a move in See blocks to add it to favorites.' : 'No moves match your filters.'}</p>
                   : view === 'blocks'
-                    ? <MovesBlockView moves={visible} allMoves={moves} selectedClassId={classId} selectedStreamId={streamId} savingMoveIds={savingMoveIds} onMasteryChange={(id, mastered) => { void changeMastery(id, mastered); }} canEdit={canEdit} onEdit={setEditingMove} onWatch={setWatchingMove} />
-                    : <MovesTable moves={visible} savingMoveIds={savingMoveIds} onMasteryChange={(id, mastered) => { void changeMastery(id, mastered); }} canEdit={canEdit} onEdit={setEditingMove} onWatch={setWatchingMove} />}
+                    ? <MovesBlockView moves={visible} allMoves={moves} selectedClassId={classId} selectedStreamId={streamId} savingMoveIds={savingMoveIds} onMasteryChange={(id, mastered) => { void changeMastery(id, mastered); }} onFavoriteChange={(id, favorite) => { void changeFavorite(id, favorite); }} canEdit={canEdit} onEdit={setEditingMove} onWatch={setWatchingMove} />
+                    : <MovesTable moves={visible} savingMoveIds={savingMoveIds} onMasteryChange={(id, mastered) => { void changeMastery(id, mastered); }} onFavoriteChange={(id, favorite) => { void changeFavorite(id, favorite); }} canEdit={canEdit} onEdit={setEditingMove} onWatch={setWatchingMove} />}
               </ManagementPanel>
             </>}
     </section>

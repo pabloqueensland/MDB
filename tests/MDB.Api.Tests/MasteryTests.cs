@@ -31,7 +31,72 @@ public sealed class MasteryTests(ApiFixture fixture)
         Assert.Equal(HttpStatusCode.OK, (await student.PutAsJsonAsync(path, new { isMastered = false })).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await student.PutAsJsonAsync(path, new { isMastered = false })).StatusCode);
         Assert.False(Assert.Single((await student.GetFromJsonAsync<List<MoveItem>>($"/api/moves?schoolId={scenario.SchoolId}"))!).IsMastered);
-        Assert.Equal(0, await database.StudentMoves.CountAsync(x => x.UserId == account.Id && x.MoveId == scenario.MoveId));
+        Assert.Null((await database.StudentMoves.SingleAsync(x => x.UserId == account.Id && x.MoveId == scenario.MoveId)).MasteredAt);
+    }
+
+    [Fact]
+    public async Task Favorites_and_mastery_are_persisted_independently_without_duplicate_rows()
+    {
+        using var student = await fixture.CreateStudentClientAsync();
+        var account = (await student.GetFromJsonAsync<AccountResponse>("/api/me"))!;
+        var scenario = await CreateScenario(account.Id);
+        var favorite = $"/api/moves/{scenario.MoveId}/favorite";
+        var mastery = $"/api/moves/{scenario.MoveId}/mastery";
+        var list = $"/api/moves?schoolId={scenario.SchoolId}";
+
+        (await student.PutAsJsonAsync(favorite, new { isFavorite = true })).EnsureSuccessStatusCode();
+        (await student.PutAsJsonAsync(favorite, new { isFavorite = true })).EnsureSuccessStatusCode();
+        var item = Assert.Single((await student.GetFromJsonAsync<List<MoveItem>>(list))!);
+        Assert.True(item.IsFavorite);
+        Assert.False(item.IsMastered);
+
+        (await student.PutAsJsonAsync(mastery, new { isMastered = true })).EnsureSuccessStatusCode();
+        (await student.PutAsJsonAsync(mastery, new { isMastered = false })).EnsureSuccessStatusCode();
+        item = Assert.Single((await student.GetFromJsonAsync<List<MoveItem>>(list))!);
+        Assert.True(item.IsFavorite);
+        Assert.False(item.IsMastered);
+
+        (await student.PutAsJsonAsync(mastery, new { isMastered = true })).EnsureSuccessStatusCode();
+        (await student.PutAsJsonAsync(favorite, new { isFavorite = false })).EnsureSuccessStatusCode();
+        (await student.PutAsJsonAsync(favorite, new { isFavorite = false })).EnsureSuccessStatusCode();
+        item = Assert.Single((await student.GetFromJsonAsync<List<MoveItem>>(list))!);
+        Assert.False(item.IsFavorite);
+        Assert.True(item.IsMastered);
+        using var scope = fixture.Services.CreateScope();
+        var database = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        Assert.Equal(1, await database.StudentMoves.CountAsync(x => x.UserId == account.Id && x.MoveId == scenario.MoveId));
+    }
+
+    [Fact]
+    public async Task Favorites_are_private_and_require_current_student_access()
+    {
+        using var first = await fixture.CreateStudentClientAsync();
+        using var second = await fixture.CreateStudentClientAsync();
+        var firstAccount = (await first.GetFromJsonAsync<AccountResponse>("/api/me"))!;
+        var secondAccount = (await second.GetFromJsonAsync<AccountResponse>("/api/me"))!;
+        var scenario = await CreateScenario(firstAccount.Id);
+        using var scope = fixture.Services.CreateScope();
+        var database = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        database.SchoolMemberships.Add(new SchoolMembership { SchoolId = scenario.SchoolId, UserId = secondAccount.Id });
+        database.ClassEnrolments.Add(new ClassEnrolment { SchoolId = scenario.SchoolId, UserId = secondAccount.Id,
+            StreamId = scenario.StreamId, ClassId = scenario.ClassId });
+        await database.SaveChangesAsync();
+        var path = $"/api/moves/{scenario.MoveId}/favorite";
+
+        (await first.PutAsJsonAsync(path, new { isFavorite = true, userId = secondAccount.Id })).EnsureSuccessStatusCode();
+        Assert.False(Assert.Single((await second.GetFromJsonAsync<List<MoveItem>>($"/api/moves?schoolId={scenario.SchoolId}"))!).IsFavorite);
+        Assert.False(await database.StudentMoves.AnyAsync(x => x.MoveId == scenario.MoveId && x.UserId == secondAccount.Id));
+
+        await database.ClassEnrolments.Where(x => x.UserId == firstAccount.Id && x.SchoolId == scenario.SchoolId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.IsActive, false));
+        Assert.Equal(HttpStatusCode.Forbidden, (await first.PutAsJsonAsync(path, new { isFavorite = false })).StatusCode);
+        Assert.Empty((await first.GetFromJsonAsync<List<MoveItem>>($"/api/moves?schoolId={scenario.SchoolId}"))!);
+        using var anonymous = fixture.CreateClient();
+        using var platform = await fixture.CreateAdminClientAsync();
+        using var unassigned = await fixture.CreateStudentClientAsync();
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.PutAsJsonAsync(path, new { isFavorite = true })).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await platform.PutAsJsonAsync(path, new { isFavorite = true })).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await unassigned.PutAsJsonAsync(path, new { isFavorite = true })).StatusCode);
     }
 
     [Fact]
@@ -98,5 +163,5 @@ public sealed class MasteryTests(ApiFixture fixture)
     }
 
     private sealed record Scenario(Guid SchoolId, Guid StreamId, Guid ClassId, Guid MoveId);
-    private sealed record MoveItem(Guid Id, bool IsMastered, bool CanMarkMastered);
+    private sealed record MoveItem(Guid Id, bool IsMastered, bool CanMarkMastered, bool IsFavorite);
 }

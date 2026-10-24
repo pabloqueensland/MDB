@@ -20,7 +20,7 @@
 .school-table td {
   padding: 20px 25px;
   font-size: 12px;
-  border-top: 1px solid #e8eade;
+  border-bottom: 1px solid #e8eade;
   overflow-wrap: anywhere;
   max-width: 400px;
 }
@@ -30,6 +30,10 @@
 }
 
 @media (max-width:650px) {
+  .school-table .table-mobile-hidden {
+    display: none;
+  }
+
   .school-table th, .school-table td {
     padding: 14px;
   }

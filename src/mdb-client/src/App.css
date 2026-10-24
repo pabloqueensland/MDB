@@ -187,14 +187,6 @@ h1 em {
   gap: 26px;
 }
 
-.password-field {
-  position: relative;
-}
-
-.password-field input {
-  padding-right: 62px;
-}
-
 .switch-copy {
   text-align: center;
   font-size: 11px;
@@ -414,12 +406,6 @@ h1 em {
   color: #7e8776;
 }
 
-.password-field .button {
-  position: absolute;
-  right: 4px;
-  top: 1px;
-}
-
 .app-shell > main {
   padding: 42px 56px 28px;
   display: flex;
@@ -438,4 +424,8 @@ h1 em {
     padding: 32px 25px 23px;
   }
 
+}
+
+.auth-card form {
+  gap: 20px;
 }

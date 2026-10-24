@@ -94,8 +94,9 @@ public sealed class MovesController(ApplicationDbContext database, MoveAccess ac
                     .OrderBy(danceClass => danceClass.Level).ThenBy(danceClass => danceClass.Name)
                     .Select(danceClass => new MoveClassResponse(danceClass.Id, danceClass.Name, danceClass.Level,
                         danceClass.StreamId, danceClass.Stream.Name)).ToList(),
-                database.StudentMoves.Any(mastery => mastery.MoveId == x.Id && mastery.UserId == userId),
-                studentMoves.Contains(x.Id)))
+                database.StudentMoves.Any(mastery => mastery.MoveId == x.Id && mastery.UserId == userId && mastery.MasteredAt != null),
+                studentMoves.Contains(x.Id),
+                database.StudentMoves.Any(preference => preference.MoveId == x.Id && preference.UserId == userId && preference.IsFavorite)))
             .ToListAsync(cancellationToken);
 
         return Ok(moves);
@@ -114,38 +115,69 @@ public sealed class MovesController(ApplicationDbContext database, MoveAccess ac
             return Forbid();
         }
 
-        if (!request.IsMastered)
+        if (request.IsMastered)
         {
-            await database.StudentMoves.Where(x => x.SchoolId == move.SchoolId && x.UserId == userId && x.MoveId == id)
-                .ExecuteDeleteAsync(cancellationToken);
-
-            return Ok(new MasteryResponse(id, false));
+            await EnsureStudentMoveAsync(move.SchoolId, userId, id, cancellationToken);
         }
 
-        var exists = await database.StudentMoves.AnyAsync(x => x.SchoolId == move.SchoolId && x.UserId == userId && x.MoveId == id, cancellationToken);
+        var now = DateTimeOffset.UtcNow;
+        await database.StudentMoves.Where(x => x.SchoolId == move.SchoolId && x.UserId == userId && x.MoveId == id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.MasteredAt,
+                x => request.IsMastered ? x.MasteredAt ?? now : (DateTimeOffset?)null), cancellationToken);
 
-        if (!exists)
+        return Ok(new MasteryResponse(id, request.IsMastered));
+    }
+
+    [HttpPut("{id:guid}/favorite")]
+    public async Task<ActionResult<FavoriteResponse>> SetFavorite(Guid id, FavoriteRequest request, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var move = await access.StudentMoves(User).AsNoTracking().SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        if (move is null || userId is null)
         {
-            database.StudentMoves.Add(new StudentMove { SchoolId = move.SchoolId, UserId = userId, MoveId = id });
-
-            try
-            {
-                await database.SaveChangesAsync(cancellationToken);
-            }
-            catch (DbUpdateException exception) when (exception.InnerException is SqlException { Number: 2601 or 2627 })
-            {
-                // Another request already created the same student's mastery link.
-            }
+            return Forbid();
         }
 
-        return Ok(new MasteryResponse(id, true));
+        if (request.IsFavorite)
+        {
+            await EnsureStudentMoveAsync(move.SchoolId, userId, id, cancellationToken);
+        }
+
+        await database.StudentMoves.Where(x => x.SchoolId == move.SchoolId && x.UserId == userId && x.MoveId == id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.IsFavorite, request.IsFavorite), cancellationToken);
+
+        return Ok(new FavoriteResponse(id, request.IsFavorite));
+    }
+
+    private async Task EnsureStudentMoveAsync(Guid schoolId, string userId, Guid moveId, CancellationToken cancellationToken)
+    {
+        if (await database.StudentMoves.AnyAsync(x => x.SchoolId == schoolId && x.UserId == userId && x.MoveId == moveId, cancellationToken))
+        {
+            return;
+        }
+
+        var preference = new StudentMove { SchoolId = schoolId, UserId = userId, MoveId = moveId };
+        database.StudentMoves.Add(preference);
+
+        try
+        {
+            await database.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException exception) when (exception.InnerException is SqlException { Number: 2601 or 2627 })
+        {
+            // A concurrent request created the row; update only this request's field.
+            database.Entry(preference).State = EntityState.Detached;
+        }
     }
 }
 
 public sealed record MoveClassResponse(Guid Id, string Name, decimal Level, Guid StreamId, string StreamName);
 public sealed record MoveResponse(Guid Id, string Name, decimal Level, string VideoUrl, string? Description, string? Block,
-    Guid SchoolId, string SchoolName, List<MoveClassResponse> Classes, bool IsMastered, bool CanMarkMastered);
+    Guid SchoolId, string SchoolName, List<MoveClassResponse> Classes, bool IsMastered, bool CanMarkMastered, bool IsFavorite);
 public sealed record MasteryRequest(bool IsMastered);
 public sealed record MasteryResponse(Guid MoveId, bool IsMastered);
+public sealed record FavoriteRequest(bool IsFavorite);
+public sealed record FavoriteResponse(Guid MoveId, bool IsFavorite);
 public sealed record UpdateMoveRequest([Required, StringLength(200)] string Name, decimal Level,
     [StringLength(2048)] string? VideoUrl, [StringLength(4000)] string? Description, string? Block);

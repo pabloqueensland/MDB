@@ -1,6 +1,8 @@
 import './SearchInput.css';
 import Button from './Button';
 import { useId } from 'react';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 
 interface SearchInputProps {
   label: string;
@@ -14,14 +16,11 @@ export default function SearchInput({ label, value, onChange, placeholder, disab
   const id = useId();
 
   return (
-    <div className="search-field">
-      <label htmlFor={id}>{label}</label>
-      <div className="search-input-wrap">
-        <input id={id} type="search" value={value} placeholder={placeholder} disabled={disabled}
-          onChange={(event) => onChange(event.target.value)} />
-        {value && <Button variant="ghost" size="compact" className="search-clear" type="button" disabled={disabled}
-          aria-label={`Clear ${label.toLowerCase()}`} onClick={() => onChange('')}>Clear</Button>}
-      </div>
-    </div>
+    <TextField className="search-field" id={id} label={label} type="search" fullWidth
+      value={value} placeholder={placeholder} disabled={disabled} onChange={(event) => onChange(event.target.value)}
+      slotProps={{ input: { endAdornment: value ? <InputAdornment position="end">
+        <Button variant="ghost" size="compact" disabled={disabled}
+          aria-label={`Clear ${label.toLowerCase()}`} onClick={() => onChange('')}>Clear</Button>
+      </InputAdornment> : undefined } }} />
   );
 }

@@ -1,6 +1,6 @@
 import './MovesBlockView.css';
 import { useId } from 'react';
-import type { DanceMove } from '../api';
+import type { DanceMove } from '../../api';
 import MovesTable from './MovesTable';
 import type { MovesTableProps } from './MovesTable';
 
@@ -22,7 +22,7 @@ interface BlockGroup {
   moves: DanceMove[];
 }
 
-export default function MovesBlockView({ moves, allMoves, savingMoveIds, onMasteryChange, selectedClassId, selectedStreamId, canEdit, onEdit, onWatch }: MovesBlockViewProps) {
+export default function MovesBlockView({ moves, allMoves, savingMoveIds, onMasteryChange, onFavoriteChange, selectedClassId, selectedStreamId, canEdit, onEdit, onWatch }: MovesBlockViewProps) {
   const headingId = useId();
   const grouped = new Map<string, BlockGroup>();
 
@@ -93,7 +93,7 @@ export default function MovesBlockView({ moves, allMoves, savingMoveIds, onMaste
             </div>
             <span className="block-chevron" aria-hidden="true">›</span>
           </summary>
-          <MovesTable moves={group.moves} showBlock={false} savingMoveIds={savingMoveIds} onMasteryChange={onMasteryChange} canEdit={canEdit} onEdit={onEdit} onWatch={onWatch} />
+          <MovesTable moves={group.moves} showBlock={false} savingMoveIds={savingMoveIds} onMasteryChange={onMasteryChange} onFavoriteChange={onFavoriteChange} canEdit={canEdit} onEdit={onEdit} onWatch={onWatch} />
         </details>
         );
       })}

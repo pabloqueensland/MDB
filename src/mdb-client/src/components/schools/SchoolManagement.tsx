@@ -1,14 +1,18 @@
-import CardIcon from './shared/CardIcon';
+import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import CardIcon from '../shared/CardIcon';
 import './SchoolManagement.css';
-import DataTable, { TableScroll } from './shared/DataTable';
-import ManagementPanel, { PanelHeading } from './shared/ManagementPanel';
-import Button from './shared/Button';
+import DataTable, { TableScroll } from '../shared/DataTable';
+import ManagementPanel, { PanelHeading } from '../shared/ManagementPanel';
+import Button from '../shared/Button';
 import { useEffect, useState } from 'react';
-import { api } from '../api';
-import type { School } from '../api';
-import { useAuthStore } from '../stores/authStore';
+import { api } from '../../api';
+import type { School } from '../../api';
+import { useAuthStore } from '../../stores/authStore';
 import AddSchoolModal from './AddSchoolModal';
-import PageHeader from './shared/PageHeader';
+import PageHeader from '../shared/PageHeader';
 
 export default function SchoolManagement() {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -74,7 +78,7 @@ export default function SchoolManagement() {
         {isLoading ? <p className="panel-message" role="status">Loading schools…</p>
           : error ? <div className="panel-message"><p className="error" role="alert">{error}</p><Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>Try again</Button></div>
             : schools.length === 0 ? <div className="empty-schools"><CardIcon>▤</CardIcon><h3>Your first school starts here.</h3><p>Add a school to start building your dance community.</p><Button variant="secondary" onClick={() => { setNotice(''); setShowModal(true); }}>Add your first school</Button></div>
-              : <TableScroll><DataTable><thead><tr><th scope="col">School name</th><th scope="col">Slug</th></tr></thead><tbody>{schools.map((school) => <tr key={school.id}><td><span className="school-avatar" aria-hidden="true">{school.name.charAt(0).toUpperCase()}</span>{school.name}</td><td>{school.slug}</td></tr>)}</tbody></DataTable></TableScroll>}
+              : <TableScroll><DataTable><TableHead><TableRow><TableCell scope="col">School name</TableCell><TableCell scope="col">Slug</TableCell></TableRow></TableHead><TableBody>{schools.map((school) => <TableRow key={school.id}><TableCell><span className="school-avatar" aria-hidden="true">{school.name.charAt(0).toUpperCase()}</span>{school.name}</TableCell><TableCell>{school.slug}</TableCell></TableRow>)}</TableBody></DataTable></TableScroll>}
       </ManagementPanel>
       {showModal && <AddSchoolModal onClose={() => setShowModal(false)} onCreated={created} />}
     </section>

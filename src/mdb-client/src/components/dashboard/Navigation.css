@@ -1,0 +1,122 @@
+.desktop-navigation-drawer,
+.desktop-navigation-drawer .navigation-paper {
+  width: 244px;
+}
+
+.navigation-paper {
+  background: #193b32;
+  color: #f5f2e6;
+  border: 0;
+}
+
+.mobile-navigation-drawer .navigation-paper {
+  width: min(300px, calc(100vw - 32px));
+}
+
+.navigation-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 24px;
+}
+
+.navigation-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.navigation-list {
+  display: grid;
+  gap: 8px;
+  padding: 0 0 24px;
+}
+
+.navigation-list .MuiListItemButton-root {
+  min-height: 48px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  color: #c0d0c4;
+}
+
+.navigation-list .MuiListItemButton-root:hover {
+  background: #ffffff09;
+}
+
+.navigation-list .MuiListItemButton-root.Mui-selected,
+.navigation-list .MuiListItemButton-root.Mui-selected:hover {
+  background: #d4df8c;
+  color: #193b32;
+}
+
+.navigation-list .MuiListItemIcon-root {
+  min-width: 32px;
+  color: inherit;
+  font-size: 20px;
+}
+
+.navigation-list .MuiListItemText-primary {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.navigation-list .Mui-selected .MuiListItemText-primary {
+  font-weight: 600;
+}
+
+.navigation-account {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #ffffff20;
+}
+
+.navigation-account-label {
+  color: #a4baa8;
+  font-size: 8px;
+  letter-spacing: 1.6px;
+}
+
+.navigation-account strong {
+  font-size: 11px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.navigation-role {
+  color: #d4df8c;
+  font-size: 10px;
+}
+
+.navigation-sign-out {
+  justify-content: space-between;
+}
+
+.mobile-navigation-bar {
+  background: #193b32;
+  color: #f5f2e6;
+}
+
+.mobile-navigation-toolbar {
+  min-height: 56px;
+  padding: 0 10px;
+  gap: 8px;
+}
+
+.mobile-navigation-section {
+  min-width: 0;
+  margin-left: auto;
+  font-size: 12px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width:1000px) {
+  .desktop-navigation-drawer,
+  .desktop-navigation-drawer .navigation-paper {
+    width: 210px;
+  }
+}

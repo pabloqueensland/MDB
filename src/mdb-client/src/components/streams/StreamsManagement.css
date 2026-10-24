@@ -1,0 +1,16 @@
+.curriculum-school {
+  max-width: 420px;
+  margin-bottom: 28px;
+}
+
+.stream-list {
+  display: grid;
+  gap: 25px;
+}
+
+.streams-management .stream-count {
+  display: block;
+  color: #7e8776;
+  font-size: 11px;
+  margin-top: 8px;
+}

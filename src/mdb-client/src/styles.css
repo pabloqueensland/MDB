@@ -38,11 +38,6 @@ button:focus-visible, a:focus-visible {
   outline-offset: 4px;
 }
 
-input:focus {
-  outline: 2px solid #648d78;
-  outline-offset: 2px;
-}
-
 .section-number {
   font-size: 9px;
   letter-spacing: 1.8px;
@@ -73,28 +68,6 @@ h2 {
 form {
   display: flex;
   flex-direction: column;
-}
-
-label {
-  font-size: 11px;
-  font-weight: 600;
-  margin: 0 0 9px;
-}
-
-input {
-  width: 100%;
-  border: 1px solid #d9ded3;
-  border-radius: 6px;
-  padding: 14px 15px;
-  background: #fffefa;
-  color: #213730;
-  font-size: 12px;
-  margin-bottom: 22px;
-  min-height: 46px;
-}
-
-input::placeholder {
-  color: #9ba092;
 }
 
 .field-help {

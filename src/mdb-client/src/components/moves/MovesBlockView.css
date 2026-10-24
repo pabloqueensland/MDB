@@ -150,3 +150,35 @@
   font-size: 11px;
   margin-top: 8px;
 }
+
+@media (max-width:650px) {
+  .move-blocks {
+    padding: 6px;
+    gap: 12px;
+  }
+
+  .move-block-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20px;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .move-block-heading .block-progress {
+    grid-column: 1;
+    grid-row: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-left: 0;
+  }
+
+  .move-block-heading .block-chevron {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .move-block-heading h3 {
+    font-size: 14px;
+  }
+}

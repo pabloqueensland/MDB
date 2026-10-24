@@ -1,16 +1,23 @@
-import Brand from './shared/Brand';
-import Footer from './shared/Footer';
+import Navigation from './Navigation';
+import Footer from '../shared/Footer';
 import './Dashboard.css';
-import Button from './shared/Button';
+import Button from '../shared/Button';
 import { useEffect, useState } from 'react';
-import { useAuthStore } from '../stores/authStore';
-import type { User } from '../api';
-import SchoolManagement from './SchoolManagement';
-import PeopleManagement from './PeopleManagement';
-import UsersManagement from './UsersManagement';
+import type { ReactNode } from 'react';
+import DomainOutlinedIcon from '@mui/icons-material/DomainOutlined';
+import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
+import CoPresentOutlinedIcon from '@mui/icons-material/CoPresentOutlined';
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
+import SportsGymnasticsOutlinedIcon from '@mui/icons-material/SportsGymnasticsOutlined';
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
+import { useAuthStore } from '../../stores/authStore';
+import type { User } from '../../api';
+import SchoolManagement from '../schools/SchoolManagement';
+import PeopleManagement from '../users/PeopleManagement';
+import UsersManagement from '../users/UsersManagement';
 import DashboardHome from './DashboardHome';
-import MovesLibrary from './MovesLibrary';
-import StreamsManagement from './StreamsManagement';
+import MovesLibrary from '../moves/MovesLibrary';
+import StreamsManagement from '../streams/StreamsManagement';
 
 type Page = 'dashboard' | 'schools' | 'teachers' | 'students' | 'moves' | 'users' | 'streams';
 
@@ -26,13 +33,13 @@ function allowedPages(user: User | null): Page[] {
   return ['dashboard', 'moves'];
 }
 
-const menu: { page: Page; label: string; icon: string; description: string }[] = [
-  { page: 'schools', label: 'Schools', icon: '▤', description: 'Create and manage schools across MDB.' },
-  { page: 'streams', label: 'Streams & classes', icon: '≋', description: 'Manage dance styles and their class levels.' },
-  { page: 'teachers', label: 'Teachers', icon: '◇', description: 'View teachers in the schools you manage.' },
-  { page: 'students', label: 'Students', icon: '◉', description: 'View students in the schools you manage.' },
-  { page: 'moves', label: 'Moves', icon: '✳', description: 'Browse the moves taught at your schools.' },
-  { page: 'users', label: 'All users', icon: '◌', description: 'View every account, including users without a school.' },
+const menu: { page: Page; label: string; icon: ReactNode; description: string }[] = [
+  { page: 'schools', label: 'Schools', icon: <DomainOutlinedIcon fontSize="inherit" />, description: 'Create and manage schools across MDB.' },
+  { page: 'streams', label: 'Streams & classes', icon: <AccountTreeOutlinedIcon fontSize="inherit" />, description: 'Manage dance styles and their class levels.' },
+  { page: 'teachers', label: 'Teachers', icon: <CoPresentOutlinedIcon fontSize="inherit" />, description: 'View teachers in the schools you manage.' },
+  { page: 'students', label: 'Students', icon: <SchoolOutlinedIcon fontSize="inherit" />, description: 'View students in the schools you manage.' },
+  { page: 'moves', label: 'Moves', icon: <SportsGymnasticsOutlinedIcon fontSize="inherit" />, description: 'Browse the moves taught at your schools.' },
+  { page: 'users', label: 'All users', icon: <GroupsOutlinedIcon fontSize="inherit" />, description: 'View every account, including users without a school.' },
 ];
 
 export default function Dashboard() {
@@ -79,13 +86,7 @@ export default function Dashboard() {
   }
 
   return <div className="dashboard-shell">
-    <aside className="sidebar">
-      <Brand href="#/dashboard" label="MDB dashboard" />
-      <nav aria-label="Main navigation">
-        {visibleMenu.map((item) => <a key={item.page} href={`#/${item.page}`} className={page === item.page ? 'selected' : ''} aria-current={page === item.page ? 'page' : undefined}><span aria-hidden="true">{item.icon}</span>{item.label}</a>)}
-      </nav>
-      <div className="sidebar-account"><span className="sidebar-label">SIGNED IN AS</span><strong>{user.email}</strong>{isPlatform && <span className="role-pill">Platform admin</span>}<Button variant="inverse" className="sign-out-button" onClick={logout}>Sign out <span aria-hidden="true">↗</span></Button></div>
-    </aside>
+    <Navigation items={visibleMenu} page={page} email={user.email} isPlatform={isPlatform} onLogout={logout} />
     <main className="dashboard-main">
       {adminSession && <div className="impersonation-banner" role="status"><div><strong>Viewing as {user.email}</strong><span>Actions use this account’s permissions and change real data. Session lasts up to 15 minutes.</span></div><Button variant="secondary" disabled={impersonationBusy} onClick={() => { void stopImpersonating(); }}>{impersonationBusy ? 'Returning…' : 'Return to my account'}</Button></div>}
       {impersonationError && <p className="error" role="alert">{impersonationError}</p>}
