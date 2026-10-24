@@ -1,3 +1,7 @@
+import './PeopleManagement.css';
+import DataTable, { TableScroll } from './shared/DataTable';
+import ManagementPanel, { PanelHeading } from './shared/ManagementPanel';
+import Button from './shared/Button';
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import type { Member, School, SchoolRole } from '../api';
@@ -72,7 +76,7 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
       return <p className="panel-message">{empty}</p>;
     }
 
-    return <div className="school-table-scroll"><table className="school-table"><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">School</th><th scope="col">Role</th><th scope="col">Actions</th></tr></thead><tbody>{items.map((member) => <tr key={`${member.schoolId}-${member.userId}`}><td>{member.name || member.email}</td><td>{member.email}</td><td>{member.schoolName}</td><td>{roleLabel(member.role)}</td><td><div className="row-actions">{member.role === 'Student' && <button className="secondary" onClick={() => setEnrolStudent(member)}>Enrolments</button>}{canImpersonate && <ImpersonateButton userId={member.userId} />}</div></td></tr>)}</tbody></table></div>;
+    return <TableScroll><DataTable><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">School</th><th scope="col">Role</th><th scope="col">Actions</th></tr></thead><tbody>{items.map((member) => <tr key={`${member.schoolId}-${member.userId}`}><td>{member.name || member.email}</td><td>{member.email}</td><td>{member.schoolName}</td><td>{roleLabel(member.role)}</td><td><div className="row-actions">{member.role === 'Student' && <Button variant="secondary" onClick={() => setEnrolStudent(member)}>Enrolments</Button>}{canImpersonate && <ImpersonateButton userId={member.userId} />}</div></td></tr>)}</tbody></DataTable></TableScroll>;
   }
 
   return <section aria-labelledby="people-title">
@@ -81,15 +85,15 @@ export default function PeopleManagement({ role }: { role: 'Instructor' | 'Stude
       eyebrow="YOUR COMMUNITY"
       title={title}
       description={user?.roles.includes('PlatformAdmin') ? 'Memberships across all schools.' : 'Memberships in the schools you administer.'}
-      actions={<button className="primary add-school-button" disabled={loading || !!error || schools.length === 0} onClick={() => { setNotice(''); setOpen(true); }}>Assign school role <span aria-hidden="true">＋</span></button>}
+      actions={<Button className="add-school-button" disabled={loading || !!error || schools.length === 0} onClick={() => { setNotice(''); setOpen(true); }}>Assign school role <span aria-hidden="true">＋</span></Button>}
     />
     {notice && <p className="created-message" role="status">{notice}</p>}
     <SearchInput label={`Search ${title.toLowerCase()}`} value={search} onChange={setSearch}
       placeholder="Search by name or email" disabled={loading} />
-    {error ? <div><p className="error" role="alert">{error}</p><button className="secondary" onClick={() => setRevision((value) => value + 1)}>Try again</button></div>
+    {error ? <div><p className="error" role="alert">{error}</p><Button variant="secondary" onClick={() => setRevision((value) => value + 1)}>Try again</Button></div>
       : loading ? <p className="panel-message" role="status">Loading memberships…</p>
-        : <><div className="schools-panel"><div className="schools-panel-heading"><h2>{title}</h2><span role="status">{visibleMembers.length} of {roleMembers.length}</span></div>{table(visibleMembers, term ? `No ${title.toLowerCase()} match your search.` : `No ${title.toLowerCase()} have been assigned yet.`)}</div>
-          <div className="schools-panel team-panel"><div className="schools-panel-heading"><h2>School leadership</h2></div>{table(members.filter((member) => member.role === 'SchoolManager' || member.role === 'SchoolAdmin'), 'No school managers or studio admins have been assigned yet.')}</div>
+        : <><ManagementPanel><PanelHeading><h2>{title}</h2><span role="status">{visibleMembers.length} of {roleMembers.length}</span></PanelHeading>{table(visibleMembers, term ? `No ${title.toLowerCase()} match your search.` : `No ${title.toLowerCase()} have been assigned yet.`)}</ManagementPanel>
+          <ManagementPanel className="team-panel"><PanelHeading><h2>School leadership</h2></PanelHeading>{table(members.filter((member) => member.role === 'SchoolManager' || member.role === 'SchoolAdmin'), 'No school managers or studio admins have been assigned yet.')}</ManagementPanel>
           {schools.length === 0 && <p className="field-help team-help">Create a school from Schools before assigning users.</p>}</>}
     {open && <MembershipModal schools={schools} initialRole={role} onClose={() => setOpen(false)} onSaved={() => { setOpen(false); setNotice('School membership saved.'); setRevision((value) => value + 1); }} />}
     {enrolStudent && <EnrolmentsModal key={`${enrolStudent.schoolId}-${enrolStudent.userId}`} student={enrolStudent} onClose={() => setEnrolStudent(null)} />}

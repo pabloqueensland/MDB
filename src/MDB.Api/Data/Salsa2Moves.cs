@@ -41,7 +41,7 @@ public static class Salsa2Moves
             Block = move.Block,
             Level = 2m,
             School = school,
-            VideoUrl = string.Empty
+            VideoUrl = "http://localhost:5173/videos/test.mp4"
         }).ToList();
     }
 }

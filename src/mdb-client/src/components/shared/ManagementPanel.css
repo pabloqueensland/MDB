@@ -1,0 +1,25 @@
+.schools-panel {
+  border: 1px solid #dce1d4;
+  border-radius: 9px;
+  background: #fffefa;
+  overflow: hidden;
+}
+
+.schools-panel-heading {
+  padding: 22px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e4e7df;
+}
+
+.schools-panel-heading h2 {
+  font-size: 17px;
+  letter-spacing: -.3px;
+  margin: 0;
+}
+
+.schools-panel-heading > span {
+  color: #7e8776;
+  font-size: 11px;
+}

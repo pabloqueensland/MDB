@@ -1,32 +1,42 @@
+import './MovesTable.css';
+import DataTable, { TableScroll } from './shared/DataTable';
+import Button from './shared/Button';
 import type { DanceMove } from '../api';
 
 export interface MovesTableProps {
   moves: DanceMove[];
   showBlock?: boolean;
+  canEdit?: (move: DanceMove) => boolean;
+  onEdit?: (move: DanceMove) => void;
+  onWatch: (move: DanceMove) => void;
   savingMoveIds: ReadonlySet<string>;
   onMasteryChange: (moveId: string, isMastered: boolean) => void;
 }
 
-export default function MovesTable({ moves, showBlock = true, savingMoveIds, onMasteryChange }: MovesTableProps) {
+export default function MovesTable({ moves, showBlock = true, savingMoveIds, onMasteryChange, canEdit, onEdit, onWatch }: MovesTableProps) {
+  const showActions = Boolean(onEdit && moves.some((move) => canEdit?.(move)));
+
   return (
-    <div className="school-table-scroll">
-      <table className={`school-table moves-table ${showBlock ? 'moves-table--full' : 'moves-table--blocks'}`}>
+    <TableScroll>
+      <DataTable className={`moves-table ${showBlock ? 'moves-table--full' : 'moves-table--blocks'}`}>
         <colgroup>
           <col className="moves-col-mastery" />
           <col className="moves-col-name" />
           {showBlock && <col className="moves-col-block" />}
-          <col className="moves-col-level" />
-          <col className="moves-col-school" />
+          {showBlock && <col className="moves-col-level" />}
+          {showBlock && <col className="moves-col-school" />}
           <col className="moves-col-video" />
+          {showActions && <col className="moves-col-actions" />}
         </colgroup>
         <thead>
           <tr>
             <th scope="col" className="mastery-column">Mastered</th>
             <th scope="col">Move</th>
             {showBlock && <th scope="col">Block</th>}
-            <th scope="col">Level</th>
-            <th scope="col">School / Classes</th>
+            {showBlock && <th scope="col">Level</th>}
+            {showBlock && <th scope="col">School / Classes</th>}
             <th scope="col">Video</th>
+            {showActions && <th scope="col" className="move-actions">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -42,26 +52,34 @@ export default function MovesTable({ moves, showBlock = true, savingMoveIds, onM
                 {savingMoveIds.has(move.id) && <span className="mastery-saving">Saving…</span>}
               </td>
               <td>
-                <strong>{move.name}</strong>
+                {/^https?:\/\//i.test(move.videoUrl)
+                  ? <Button variant="ghost" className="move-watch-name" onClick={() => onWatch(move)} aria-label={`Watch ${move.name}`}>{move.name}</Button>
+                  : <strong>{move.name}</strong>}
                 {move.description && <p className="move-description">{move.description}</p>}
               </td>
               {showBlock && <td>{move.block ?? '—'}</td>}
-              <td><span className="level-badge">{move.level}</span></td>
-              <td>
+              {showBlock && <td><span className="level-badge">{move.level}</span></td>}
+              {showBlock && <td>
                 <span>{move.schoolName}</span>
                 <div className="move-class-labels">
                   {move.classes.map((danceClass) => <span key={danceClass.id}>{danceClass.streamName} · {danceClass.name}</span>)}
                 </div>
-              </td>
+              </td>}
               <td>
                 {/^https?:\/\//i.test(move.videoUrl)
-                  ? <video controls preload="none" src={move.videoUrl} aria-label={`${move.name} demonstration`} />
+                  ? <Button variant="secondary" size="compact" onClick={() => onWatch(move)} aria-label={`Watch ${move.name}`}><span aria-hidden="true">▷</span> Watch video</Button>
                   : <span className="video-placeholder">Video coming soon</span>}
               </td>
+              {showActions && <td className="move-actions">
+                {canEdit?.(move) && <Button type="button" variant="secondary" size="compact" onClick={() => onEdit?.(move)} aria-label={`Edit ${move.name}`}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6Z" /><path d="m14 5 5 5" /></svg>
+                  Edit
+                </Button>}
+              </td>}
             </tr>
           ))}
         </tbody>
-      </table>
-    </div>
+      </DataTable>
+    </TableScroll>
   );
 }

@@ -1,3 +1,5 @@
+import './SearchInput.css';
+import Button from './Button';
 import { useId } from 'react';
 
 interface SearchInputProps {
@@ -17,8 +19,8 @@ export default function SearchInput({ label, value, onChange, placeholder, disab
       <div className="search-input-wrap">
         <input id={id} type="search" value={value} placeholder={placeholder} disabled={disabled}
           onChange={(event) => onChange(event.target.value)} />
-        {value && <button className="search-clear" type="button" disabled={disabled}
-          aria-label={`Clear ${label.toLowerCase()}`} onClick={() => onChange('')}>Clear</button>}
+        {value && <Button variant="ghost" size="compact" className="search-clear" type="button" disabled={disabled}
+          aria-label={`Clear ${label.toLowerCase()}`} onClick={() => onChange('')}>Clear</Button>}
       </div>
     </div>
   );

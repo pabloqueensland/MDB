@@ -1,3 +1,6 @@
+import './MovesLibrary.css';
+import ManagementPanel, { PanelHeading } from './shared/ManagementPanel';
+import Button from './shared/Button';
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import type { DanceMove } from '../api';
@@ -5,11 +8,15 @@ import { useAuthStore } from '../stores/authStore';
 import SearchInput from './shared/SearchInput';
 import MovesTable from './MovesTable';
 import MovesBlockView from './MovesBlockView';
+import EditMoveModal from './EditMoveModal';
+import MoveVideoModal from './MoveVideoModal';
 
 export default function MovesLibrary() {
   const token = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
   const [moves, setMoves] = useState<DanceMove[]>([]);
+  const [editingMove, setEditingMove] = useState<DanceMove | null>(null);
+  const [watchingMove, setWatchingMove] = useState<DanceMove | null>(null);
   const [schoolOptions, setSchoolOptions] = useState<[string, string][]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -94,6 +101,9 @@ export default function MovesLibrary() {
   const schools = [...new Map([...schoolOptions, ...moves.map((move) => [move.schoolId, move.schoolName] as [string, string])]).entries()]
     .sort((a, b) => a[1].localeCompare(b[1]));
   const showSchoolFilter = schools.length > 1;
+  const canEdit = (move: DanceMove) => user?.roles.includes('PlatformAdmin') === true
+    || user?.memberships.some((membership) => membership.schoolId === move.schoolId
+      && (membership.role === 'SchoolAdmin' || membership.role === 'SchoolManager')) === true;
   const schoolMoves = moves.filter((move) => !schoolId || move.schoolId === schoolId);
   const classes = [...new Map(schoolMoves.flatMap((move) => move.classes.map((danceClass) => [danceClass.id, danceClass] as const))).values()]
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
@@ -105,9 +115,11 @@ export default function MovesLibrary() {
     && `${move.name} ${move.description ?? ''} ${move.block ?? ''}`.toLowerCase().includes(term));
 
   return (
-    <section aria-label="Moves">
+    <section className="moves-library" aria-label="Moves">
+      {watchingMove && <MoveVideoModal key={watchingMove.id} move={watchingMove} onClose={() => setWatchingMove(null)} />}
+      {editingMove && <EditMoveModal key={editingMove.id} move={editingMove} onClose={() => setEditingMove(null)} onSaved={() => { setEditingMove(null); setAttempt((value) => value + 1); }} />}
       {loading ? <p className="panel-message" role="status">Loading moves…</p>
-        : error ? <div><p className="error" role="alert">{error}</p><button className="secondary" onClick={() => setAttempt((value) => value + 1)}>Try again</button></div>
+        : error ? <div><p className="error" role="alert">{error}</p><Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>Try again</Button></div>
           : moves.length === 0 ? <div className="dashboard-welcome"><h2>No available moves yet.</h2><p>Students need an active stream and class enrolment. Your school also needs moves linked to a class at your enrolled level or below.</p></div>
             : <>
               <div className={`move-filters${showSchoolFilter ? '' : ' move-filters--single-school'}`}>
@@ -118,19 +130,19 @@ export default function MovesLibrary() {
               </div>
               {masteryError && <p className="error" role="alert">{masteryError}</p>}
               <p className="mastery-notice" role="status">{masteryNotice}</p>
-              <div className="schools-panel">
-                <div className="schools-panel-heading moves-view-toolbar">
+              <ManagementPanel>
+                <PanelHeading className="moves-view-toolbar">
                   <div><h2>Move library</h2><span className="stream-count" role="status">{visible.length} {visible.length === 1 ? 'move' : 'moves'}</span></div>
                   <div className="view-toggle" role="group" aria-label="Move visualization">
-                    <button type="button" aria-pressed={view === 'blocks'} onClick={() => setView('blocks')}>Toggle Block View</button>
-                    <button type="button" aria-pressed={view === 'list'} onClick={() => setView('list')}>Toggle Full list</button>
+                    <Button variant="segmented" size="compact" type="button" aria-pressed={view === 'blocks'} onClick={() => setView('blocks')}>Toggle Block View</Button>
+                    <Button variant="segmented" size="compact" type="button" aria-pressed={view === 'list'} onClick={() => setView('list')}>Toggle Full list</Button>
                   </div>
-                </div>
+                </PanelHeading>
                 {visible.length === 0 ? <p className="panel-message">No moves match your filters.</p>
                   : view === 'blocks'
-                    ? <MovesBlockView moves={visible} allMoves={moves} selectedClassId={classId} selectedStreamId={streamId} savingMoveIds={savingMoveIds} onMasteryChange={(id, mastered) => { void changeMastery(id, mastered); }} />
-                    : <MovesTable moves={visible} savingMoveIds={savingMoveIds} onMasteryChange={(id, mastered) => { void changeMastery(id, mastered); }} />}
-              </div>
+                    ? <MovesBlockView moves={visible} allMoves={moves} selectedClassId={classId} selectedStreamId={streamId} savingMoveIds={savingMoveIds} onMasteryChange={(id, mastered) => { void changeMastery(id, mastered); }} canEdit={canEdit} onEdit={setEditingMove} onWatch={setWatchingMove} />
+                    : <MovesTable moves={visible} savingMoveIds={savingMoveIds} onMasteryChange={(id, mastered) => { void changeMastery(id, mastered); }} canEdit={canEdit} onEdit={setEditingMove} onWatch={setWatchingMove} />}
+              </ManagementPanel>
             </>}
     </section>
   );

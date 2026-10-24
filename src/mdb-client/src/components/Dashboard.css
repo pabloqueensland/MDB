@@ -1,0 +1,188 @@
+.dashboard-shell {
+  display: grid;
+  grid-template-columns: 244px minmax(0, 1fr);
+  min-height: 100svh;
+}
+
+.sign-out-button {
+  justify-content: space-between;
+}
+
+.impersonation-banner {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #f2e6b8;
+  color: #514018;
+  border: 1px solid #d8c378;
+  border-radius: 8px;
+  margin-top: 20px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.impersonation-banner strong {
+  display: block;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.impersonation-banner span {
+  display: block;
+  font-size: 11px;
+  line-height: 1.8;
+  margin-top: 5px;
+}
+
+.impersonation-banner button {
+  flex-shrink: 0;
+}
+
+@media (max-width:650px) {
+  .impersonation-banner {
+    position: static;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+}
+
+.sidebar {
+  background: #193b32;
+  color: #f5f2e6;
+  padding: 24px 24px 25px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100svh;
+}
+
+.sidebar .brand {
+  margin-bottom: 24px;
+}
+
+.sidebar-label {
+  font-size: 8px;
+  letter-spacing: 1.6px;
+  color: #a4baa8;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 6px;
+  color: #c0d0c4;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.sidebar nav a:hover {
+  background: #ffffff09;
+}
+
+.sidebar nav a.selected {
+  background: #d4df8c;
+  color: #193b32;
+  font-weight: 600;
+}
+
+.sidebar nav a > span {
+  font-size: 20px;
+}
+
+.sidebar-account {
+  margin-top: auto;
+  padding-top: 25px;
+  border-top: 1px solid #ffffff20;
+  display: grid;
+  gap: 12px;
+}
+
+.sidebar-account strong {
+  font-size: 11px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.role-pill {
+  font-size: 9px;
+  color: #d4df8c;
+}
+
+.dashboard-main {
+  padding: 0 48px 25px;
+  min-width: 0;
+}
+
+.workspace-content {
+  width: 100%;
+  max-width: 1200px;
+  padding: 24px 0 70px;
+  flex: 1;
+}
+
+@media (max-width:1000px) {
+  .dashboard-shell {
+    grid-template-columns: 210px minmax(0,1fr);
+  }
+  .dashboard-main {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+}
+
+@media (max-width:650px) {
+  .dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    padding: 22px;
+  }
+  .sidebar .brand {
+    margin: 0 0 20px;
+  }
+  .sidebar nav {
+    display: flex;
+    margin: 0;
+    flex-wrap: wrap;
+  }
+  .sidebar nav a {
+    padding: 10px 13px;
+  }
+  .sidebar-account {
+    margin-top: 20px;
+    padding-top: 16px;
+    gap: 8px;
+    grid-template-columns: minmax(0,1fr) auto;
+  }
+  .sidebar-account .sidebar-label, .sidebar-account .role-pill {
+    display: none;
+  }
+  .dashboard-main {
+    padding: 0 22px 22px;
+  }
+  .workspace-content {
+    padding: 22px 0 45px;
+  }
+
+}
+
+.dashboard-main {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,37 @@
+.curriculum-school {
+  max-width: 420px;
+  margin-bottom: 28px;
+}
+
+.curriculum-school label {
+  display: block;
+}
+
+.curriculum-school select {
+  font: inherit;
+  font-size: 12px;
+  color: #213730;
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #d9ded3;
+  border-radius: 6px;
+  background: #fffefa;
+  padding: 12px 14px;
+}
+
+.curriculum-school select:focus {
+  outline: 2px solid #648d78;
+  outline-offset: 2px;
+}
+
+.stream-list {
+  display: grid;
+  gap: 25px;
+}
+
+.streams-management .stream-count {
+  display: block;
+  color: #7e8776;
+  font-size: 11px;
+  margin-top: 8px;
+}

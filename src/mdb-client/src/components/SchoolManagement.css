@@ -1,0 +1,40 @@
+.empty-schools {
+  text-align: center;
+  padding: 55px 25px;
+}
+
+.empty-schools h3 {
+  font-family: Manrope,sans-serif;
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.empty-schools p {
+  font-size: 12px;
+  color: #7e8776;
+  margin-bottom: 25px;
+  line-height: 1.8;
+}
+
+.school-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  background: #edf1e0;
+  margin-right: 12px;
+  color: #486344;
+  font-weight: 600;
+}
+
+@media (max-width:650px) {
+  .school-avatar {
+    display: none;
+  }
+
+}
+
+.empty-schools .card-icon {
+  margin: 0 auto 20px;
+}

@@ -1,0 +1,27 @@
+.search-field {
+  margin-bottom: 24px;
+}
+
+.search-field label {
+  display: block;
+}
+
+.search-input-wrap {
+  position: relative;
+}
+
+.search-input-wrap input {
+  margin: 0;
+  padding-right: 70px;
+}
+
+.search-input-wrap input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.search-clear {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+}

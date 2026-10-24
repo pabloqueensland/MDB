@@ -1,3 +1,4 @@
+import './PageHeader.css';
 import type { ReactNode } from 'react';
 
 interface PageHeaderProps {

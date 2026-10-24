@@ -1,3 +1,5 @@
+import './Modal.css';
+import Button from './Button';
 import { useEffect, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
 
@@ -6,11 +8,12 @@ interface ModalProps {
   description?: string;
   eyebrow?: string;
   busy?: boolean;
+  className?: string;
   onClose: () => void;
   children: ReactNode;
 }
 
-export default function Modal({ title, description, eyebrow, busy = false, onClose, children }: ModalProps) {
+export default function Modal({ title, description, eyebrow, busy = false, className = '', onClose, children }: ModalProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const descriptionId = useId();
@@ -23,7 +26,7 @@ export default function Modal({ title, description, eyebrow, busy = false, onClo
   }, []);
 
   return (
-    <dialog ref={dialog} className="school-modal" aria-labelledby={titleId}
+    <dialog ref={dialog} className={`school-modal ${className}`.trim()} aria-labelledby={titleId}
       aria-describedby={description ? descriptionId : undefined}
       onCancel={(event) => {
         event.preventDefault();
@@ -34,7 +37,7 @@ export default function Modal({ title, description, eyebrow, busy = false, onClo
       }}>
       <div className="modal-heading">
         <span className="section-number">{eyebrow}</span>
-        <button className="modal-close" aria-label={`Close ${title.toLowerCase()}`} disabled={busy} onClick={onClose}>×</button>
+        <Button variant="ghost" size="icon" aria-label={`Close ${title.toLowerCase()}`} disabled={busy} onClick={onClose}>×</Button>
       </div>
       <h2 id={titleId}>{title}</h2>
       {description && <p className="intro" id={descriptionId}>{description}</p>}

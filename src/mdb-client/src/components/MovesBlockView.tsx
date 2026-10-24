@@ -1,3 +1,4 @@
+import './MovesBlockView.css';
 import { useId } from 'react';
 import type { DanceMove } from '../api';
 import MovesTable from './MovesTable';
@@ -21,7 +22,7 @@ interface BlockGroup {
   moves: DanceMove[];
 }
 
-export default function MovesBlockView({ moves, allMoves, savingMoveIds, onMasteryChange, selectedClassId, selectedStreamId }: MovesBlockViewProps) {
+export default function MovesBlockView({ moves, allMoves, savingMoveIds, onMasteryChange, selectedClassId, selectedStreamId, canEdit, onEdit, onWatch }: MovesBlockViewProps) {
   const headingId = useId();
   const grouped = new Map<string, BlockGroup>();
 
@@ -80,7 +81,7 @@ export default function MovesBlockView({ moves, allMoves, savingMoveIds, onMaste
         const allMastered = blockMoves.length > 0 && masteredCount === blockMoves.length;
 
         return (
-        <details className={`move-block${allMastered ? ' move-block--mastered' : ''}`} key={group.key} aria-labelledby={`${headingId}-${index}`}>
+        <details className={`move-block${allMastered ? ' move-block--mastered' : ''}`} data-level-tone={((Math.round(group.level * 2) - 2) % 6 + 6) % 6} key={group.key} aria-labelledby={`${headingId}-${index}`}>
           <summary className="move-block-heading">
             <div>
               <h3 id={`${headingId}-${index}`}>{group.className} · {!group.label ? 'No block' : group.label.toLowerCase() === 'common' ? 'Common' : `Block ${group.label}`}</h3>
@@ -92,7 +93,7 @@ export default function MovesBlockView({ moves, allMoves, savingMoveIds, onMaste
             </div>
             <span className="block-chevron" aria-hidden="true">›</span>
           </summary>
-          <MovesTable moves={group.moves} showBlock={false} savingMoveIds={savingMoveIds} onMasteryChange={onMasteryChange} />
+          <MovesTable moves={group.moves} showBlock={false} savingMoveIds={savingMoveIds} onMasteryChange={onMasteryChange} canEdit={canEdit} onEdit={onEdit} onWatch={onWatch} />
         </details>
         );
       })}

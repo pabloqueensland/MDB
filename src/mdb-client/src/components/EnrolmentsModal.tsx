@@ -1,3 +1,5 @@
+import './EnrolmentsModal.css';
+import Button from './shared/Button';
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../api';
@@ -98,19 +100,19 @@ export default function EnrolmentsModal({ student, onClose }: Props) {
       onClose();
     }
   }}>
-    <div className="modal-heading"><span className="section-number">{student.schoolName}</span><button className="modal-close" aria-label="Close enrolments" onClick={onClose} disabled={saving}>×</button></div>
+    <div className="modal-heading"><span className="section-number">{student.schoolName}</span><Button variant="ghost" size="icon" aria-label="Close enrolments" onClick={onClose} disabled={saving}>×</Button></div>
     <h2 id="enrolments-title">Student enrolments</h2><p className="intro">{student.name || student.email}</p>
     {error && <p className="error" role="alert">{error}</p>}
     {notice && <p className="created-message" role="status">{notice}</p>}
     {loading ? <p role="status">Loading streams and enrolments…</p> : <>
-      <div className="enrolment-list">{enrolments.map((item) => <div key={item.classId} className="enrolment-row"><div><strong>{item.className}</strong><small>{item.streamName} · Level {item.level} · {item.isActive ? 'Active' : 'Inactive'}</small></div><button className="secondary" disabled={saving} onClick={() => { void save(item.streamId, item.classId, !item.isActive); }}>{item.isActive ? 'Deactivate' : 'Reactivate'}</button></div>)}{enrolments.length === 0 && <p className="intro">No enrolments yet.</p>}</div>
+      <div className="enrolment-list">{enrolments.map((item) => <div key={item.classId} className="enrolment-row"><div><strong>{item.className}</strong><small>{item.streamName} · Level {item.level} · {item.isActive ? 'Active' : 'Inactive'}</small></div><Button variant="secondary" disabled={saving} onClick={() => { void save(item.streamId, item.classId, !item.isActive); }}>{item.isActive ? 'Deactivate' : 'Reactivate'}</Button></div>)}{enrolments.length === 0 && <p className="intro">No enrolments yet.</p>}</div>
       {streams.length > 0 ? <form onSubmit={submit}>
         <label htmlFor="enrol-stream">Stream</label><select id="enrol-stream" required value={streamId} disabled={saving} onChange={(event) => { setStreamId(event.target.value); setClassId(''); }}><option value="">Choose a stream</option>{streams.map((stream) => <option key={stream.id} value={stream.id}>{stream.name}</option>)}</select>
         <label htmlFor="enrol-class">Class</label><select id="enrol-class" required value={classId} disabled={saving || !streamId} onChange={(event) => setClassId(event.target.value)}><option value="">Choose a class</option>{classes.map((danceClass) => <option key={danceClass.id} value={danceClass.id}>{danceClass.name} · Level {danceClass.level}</option>)}</select>
         <p className="intro">An active enrolment unlocks this class and lower levels in the same stream. Deactivate any higher enrolment to reduce access.</p>
-        <button className="primary" disabled={saving || !classId}>{saving ? 'Saving…' : 'Activate enrolment'}</button>
+        <Button type="submit" disabled={saving || !classId}>{saving ? 'Saving…' : 'Activate enrolment'}</Button>
       </form> : <p className="intro">This school has no streams or classes configured yet.</p>}
-      {error && <button className="secondary" disabled={saving} onClick={() => setAttempt((value) => value + 1)}>Reload enrolments</button>}
+      {error && <Button variant="secondary" disabled={saving} onClick={() => setAttempt((value) => value + 1)}>Reload enrolments</Button>}
     </>}
   </dialog>;
 }

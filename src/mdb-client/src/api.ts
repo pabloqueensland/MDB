@@ -57,6 +57,10 @@ const json = (body: unknown): RequestInit => ({
 });
 
 export const api = {
+  updateMove: (id: string, move: Pick<DanceMove, 'name' | 'level' | 'videoUrl' | 'description' | 'block'>, token: string) => request<void>(`/api/moves/${id}`, {
+    ...json(move), method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  }),
   setMoveMastery: (id: string, isMastered: boolean, token: string) => request<{ moveId: string; isMastered: boolean }>(`/api/moves/${id}/mastery`, {
     ...json({ isMastered }), method: 'PUT',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },

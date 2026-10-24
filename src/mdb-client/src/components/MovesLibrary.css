@@ -1,0 +1,98 @@
+.mastery-notice {
+  color: #31543a;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+.mastery-notice:empty {
+  margin: 0;
+}
+
+.moves-view-toolbar {
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.view-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: #f0f3e8;
+  border: 1px solid #dce1d4;
+  border-radius: 7px;
+  padding: 4px;
+}
+
+.move-filters .search-field {
+  margin-bottom: 0;
+}
+
+.move-filters .search-input-wrap input {
+  padding-right: 70px;
+}
+
+.move-filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+.move-filters--single-school {
+  grid-template-columns: 2fr 1fr 1fr;
+}
+
+.move-filters label {
+  display: block;
+}
+
+.move-filters input, .move-filters select {
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 12px;
+  color: #213730;
+  background: #fffefa;
+  border: 1px solid #d9ded3;
+  border-radius: 6px;
+}
+
+.move-filters select:focus {
+  outline: 2px solid #648d78;
+  outline-offset: 2px;
+}
+
+@media (max-width:850px) {
+  .move-filters {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+}
+
+.dashboard-welcome {
+  border: 1px solid #dce1d4;
+  border-radius: 10px;
+  padding: 30px;
+  background: #fffefa;
+}
+
+.dashboard-welcome h2 {
+  font-size: 24px;
+}
+
+.dashboard-welcome p {
+  font-size: 13px;
+  color: #7e8776;
+  line-height: 1.8;
+}
+
+.moves-library .stream-count {
+  display: block;
+  color: #7e8776;
+  font-size: 11px;
+  margin-top: 8px;
+}

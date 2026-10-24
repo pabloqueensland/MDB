@@ -1,0 +1,13 @@
+.row-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.team-panel {
+  margin-top: 28px;
+}
+
+.team-help {
+  margin-top: 20px;
+}

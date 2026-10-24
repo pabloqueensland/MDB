@@ -1,3 +1,7 @@
+import Brand from './shared/Brand';
+import Footer from './shared/Footer';
+import './Dashboard.css';
+import Button from './shared/Button';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import type { User } from '../api';
@@ -76,16 +80,14 @@ export default function Dashboard() {
 
   return <div className="dashboard-shell">
     <aside className="sidebar">
-      <a href="#/dashboard" className="brand"><span className="brand-mark">m</span> MDB</a>
-      <p className="sidebar-label">YOUR WORKSPACE</p>
+      <Brand href="#/dashboard" label="MDB dashboard" />
       <nav aria-label="Main navigation">
         {visibleMenu.map((item) => <a key={item.page} href={`#/${item.page}`} className={page === item.page ? 'selected' : ''} aria-current={page === item.page ? 'page' : undefined}><span aria-hidden="true">{item.icon}</span>{item.label}</a>)}
       </nav>
-      <div className="sidebar-account"><span className="sidebar-label">SIGNED IN AS</span><strong>{user.email}</strong>{isPlatform && <span className="role-pill">Platform admin</span>}<button onClick={logout}>Sign out <span aria-hidden="true">↗</span></button></div>
+      <div className="sidebar-account"><span className="sidebar-label">SIGNED IN AS</span><strong>{user.email}</strong>{isPlatform && <span className="role-pill">Platform admin</span>}<Button variant="inverse" className="sign-out-button" onClick={logout}>Sign out <span aria-hidden="true">↗</span></Button></div>
     </aside>
     <main className="dashboard-main">
-      <header className="workspace-header"><a href="#/dashboard">MDB / YOUR WORKSPACE</a></header>
-      {adminSession && <div className="impersonation-banner" role="status"><div><strong>Viewing as {user.email}</strong><span>Actions use this account’s permissions and change real data. Session lasts up to 15 minutes.</span></div><button className="secondary" disabled={impersonationBusy} onClick={() => { void stopImpersonating(); }}>{impersonationBusy ? 'Returning…' : 'Return to my account'}</button></div>}
+      {adminSession && <div className="impersonation-banner" role="status"><div><strong>Viewing as {user.email}</strong><span>Actions use this account’s permissions and change real data. Session lasts up to 15 minutes.</span></div><Button variant="secondary" disabled={impersonationBusy} onClick={() => { void stopImpersonating(); }}>{impersonationBusy ? 'Returning…' : 'Return to my account'}</Button></div>}
       {impersonationError && <p className="error" role="alert">{impersonationError}</p>}
       <div className="workspace-content">
         {page === 'dashboard' && <DashboardHome cards={cards} />}
@@ -95,7 +97,7 @@ export default function Dashboard() {
         {page === 'moves' && <MovesLibrary />}
         {allowed.includes('streams') && page === 'streams' && <StreamsManagement />}
       </div>
-      <footer className="main-footer"><span>MADE FOR YOUR NEXT MOVE.</span><span>MDB / 2026</span></footer>
+      <Footer />
     </main>
   </div>;
 }

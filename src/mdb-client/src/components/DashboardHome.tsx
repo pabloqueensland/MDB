@@ -1,3 +1,4 @@
+import './DashboardHome.css';
 import ManagementCard from './shared/ManagementCard';
 import type { ManagementCardProps } from './shared/ManagementCard';
 

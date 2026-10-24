@@ -1,3 +1,5 @@
+import './AddSchoolModal.css';
+import Button from './shared/Button';
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../api';
@@ -65,7 +67,7 @@ export default function AddSchoolModal({ onClose, onCreated }: Props) {
           onClose();
         }
       }}>
-      <div className="modal-heading"><span className="section-number">SCHOOL MANAGEMENT</span><button className="modal-close" aria-label="Close add school" onClick={onClose} disabled={isSaving}>×</button></div>
+      <div className="modal-heading"><span className="section-number">SCHOOL MANAGEMENT</span><Button variant="ghost" size="icon" aria-label="Close add school" onClick={onClose} disabled={isSaving}>×</Button></div>
       <h2 id="add-school-title">Add a school</h2>
       <p className="intro" id="add-school-description">Create a new space for a dance community.</p>
       <form onSubmit={submit}>
@@ -86,7 +88,7 @@ export default function AddSchoolModal({ onClose, onCreated }: Props) {
           }} />
         <p id="slug-help" className="field-help">A unique identifier using lowercase letters, numbers and hyphens.</p>
         {error && <p className="error" role="alert">{error}</p>}
-        <div className="modal-actions"><button type="button" className="secondary" onClick={onClose} disabled={isSaving}>Cancel</button><button className="primary" type="submit" disabled={isSaving}>{isSaving ? 'Creating…' : 'Create school'}<span aria-hidden="true">＋</span></button></div>
+        <div className="modal-actions"><Button type="button" variant="secondary" onClick={onClose} disabled={isSaving}>Cancel</Button><Button type="submit" disabled={isSaving}>{isSaving ? 'Creating…' : 'Create school'}<span aria-hidden="true">＋</span></Button></div>
       </form>
     </dialog>
   );

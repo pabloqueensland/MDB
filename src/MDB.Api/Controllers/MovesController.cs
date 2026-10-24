@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 using MDB.Api.Data;
 using MDB.Api.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -11,8 +12,45 @@ namespace MDB.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/moves")]
-public sealed class MovesController(ApplicationDbContext database, MoveAccess access) : ControllerBase
+public sealed class MovesController(ApplicationDbContext database, MoveAccess access, SchoolAccess schools) : ControllerBase
 {
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, UpdateMoveRequest request, CancellationToken cancellationToken)
+    {
+        var move = await database.Moves.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        if (move is null)
+        {
+            return NotFound();
+        }
+
+        if (!await schools.CanManageAsync(User, move.SchoolId, cancellationToken))
+        {
+            return Forbid();
+        }
+
+        var videoUrl = request.VideoUrl?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(request.Name) || request.Level < 0 || request.Level > 9999.99m
+            || decimal.Round(request.Level, 2) != request.Level
+            || request.Block?.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length > 20
+            || (videoUrl.Length > 0 && (!Uri.TryCreate(videoUrl, UriKind.Absolute, out var uri)
+                || (uri.Scheme != "http" && uri.Scheme != "https"))))
+        {
+            return BadRequest(new ProblemDetails { Title = "Provide a name, a non-negative level with at most two decimals, an HTTP(S) video URL or leave it blank, and a block of at most 20 words." });
+        }
+
+        move.Name = request.Name.Trim();
+        move.Level = request.Level;
+        move.VideoUrl = videoUrl;
+        move.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
+        move.Block = request.Block;
+        move.UpdatedAt = DateTimeOffset.UtcNow;
+        await database.SaveChangesAsync(cancellationToken);
+
+        return NoContent();
+    }
+
     [HttpGet]
     public async Task<ActionResult<List<MoveResponse>>> List(Guid? schoolId, Guid? streamId, Guid? classId, CancellationToken cancellationToken)
     {
@@ -109,3 +147,5 @@ public sealed record MoveResponse(Guid Id, string Name, decimal Level, string Vi
     Guid SchoolId, string SchoolName, List<MoveClassResponse> Classes, bool IsMastered, bool CanMarkMastered);
 public sealed record MasteryRequest(bool IsMastered);
 public sealed record MasteryResponse(Guid MoveId, bool IsMastered);
+public sealed record UpdateMoveRequest([Required, StringLength(200)] string Name, decimal Level,
+    [StringLength(2048)] string? VideoUrl, [StringLength(4000)] string? Description, string? Block);

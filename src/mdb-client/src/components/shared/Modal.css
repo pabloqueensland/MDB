@@ -1,0 +1,63 @@
+.modal-actions {
+  flex-wrap: wrap;
+}
+
+.school-modal select {
+  font: inherit;
+  font-size: 12px;
+  width: 100%;
+  min-height: 46px;
+  background: #fffefa;
+  color: #213730;
+  border: 1px solid #d9ded3;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 22px;
+}
+
+.school-modal select:focus {
+  outline: 2px solid #648d78;
+  outline-offset: 2px;
+}
+
+.school-modal {
+  width: min(480px, calc(100% - 32px));
+  max-height: calc(100svh - 40px);
+  overflow-y: auto;
+  background: #faf9f5;
+  color: #213730;
+  border: 1px solid #dce1d4;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 24px 100px #0003;
+}
+
+.school-modal::backdrop {
+  background: #10271f88;
+  backdrop-filter: blur(3px);
+}
+
+.modal-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 15px;
+}
+
+.school-modal h2 {
+  font-size: 28px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+@media (max-width:650px) {
+  .school-modal {
+    padding: 24px;
+  }
+
+}

@@ -1,0 +1,30 @@
+@import './shared/Modal.css';
+
+.enrolments-modal {
+  width: min(620px, calc(100% - 32px));
+}
+
+.enrolment-list {
+  margin-bottom: 24px;
+}
+
+.enrolment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #dce1d4;
+}
+
+.enrolment-row strong {
+  display: block;
+  font-size: 13px;
+}
+
+.enrolment-row small {
+  display: block;
+  font-size: 11px;
+  color: #7e8776;
+  margin-top: 7px;
+}

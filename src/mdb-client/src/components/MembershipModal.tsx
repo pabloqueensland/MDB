@@ -1,3 +1,5 @@
+import './MembershipModal.css';
+import Button from './shared/Button';
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../api';
@@ -51,7 +53,7 @@ export default function MembershipModal({ schools, initialRole, onClose, onSaved
       onClose();
     }
   }}>
-    <div className="modal-heading"><span className="section-number">SCHOOL TEAM</span><button className="modal-close" onClick={onClose} disabled={saving} aria-label="Close membership form">×</button></div>
+    <div className="modal-heading"><span className="section-number">SCHOOL TEAM</span><Button variant="ghost" size="icon" onClick={onClose} disabled={saving} aria-label="Close membership form">×</Button></div>
     <h2 id="member-title">Assign school role</h2>
     <p className="intro">Add a registered user to a school, or update their existing role.</p>
     <form onSubmit={submit}>
@@ -66,7 +68,7 @@ export default function MembershipModal({ schools, initialRole, onClose, onSaved
         {isPlatform && <option value="SchoolManager">School manager</option>}
       </select>
       {error && <p className="error" role="alert">{error}</p>}
-      <div className="modal-actions"><button className="secondary" type="button" disabled={saving} onClick={onClose}>Cancel</button><button className="primary" disabled={saving || !schoolId}>{saving ? 'Saving…' : 'Save membership'}</button></div>
+      <div className="modal-actions"><Button variant="secondary" type="button" disabled={saving} onClick={onClose}>Cancel</Button><Button type="submit" disabled={saving || !schoolId}>{saving ? 'Saving…' : 'Save membership'}</Button></div>
     </form>
   </dialog>;
 }

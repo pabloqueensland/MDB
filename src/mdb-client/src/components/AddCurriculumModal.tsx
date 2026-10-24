@@ -1,3 +1,5 @@
+import './AddCurriculumModal.css';
+import Button from './shared/Button';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../api';
@@ -65,8 +67,8 @@ export default function AddCurriculumModal({ schoolId, schoolName, stream, onClo
         </>}
         {error && <p className="error" role="alert">{error}</p>}
         <div className="modal-actions">
-          <button className="secondary" type="button" disabled={saving} onClick={onClose}>Cancel</button>
-          <button className="primary" type="submit" disabled={saving}>{saving ? 'Saving…' : title}</button>
+          <Button variant="secondary" type="button" disabled={saving} onClick={onClose}>Cancel</Button>
+          <Button type="submit" disabled={saving}>{saving ? 'Saving…' : title}</Button>
         </div>
       </form>
     </Modal>

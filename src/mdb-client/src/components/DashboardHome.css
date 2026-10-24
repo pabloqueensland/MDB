@@ -1,0 +1,12 @@
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(250px, 360px));
+  gap: 24px;
+}
+
+@media (max-width:650px) {
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+
+}

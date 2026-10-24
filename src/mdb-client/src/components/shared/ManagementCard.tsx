@@ -1,3 +1,5 @@
+import CardIcon from './CardIcon';
+import './ManagementCard.css';
 import type { ReactNode } from 'react';
 
 export interface ManagementCardProps {
@@ -11,7 +13,7 @@ export interface ManagementCardProps {
 export default function ManagementCard({ title, description, icon, href, linkLabel }: ManagementCardProps) {
   return (
     <a className="management-card" href={href}>
-      <span className="card-icon" aria-hidden="true">{icon}</span>
+      <CardIcon>{icon}</CardIcon>
       <h2>{title}</h2>
       <p>{description}</p>
       <span className="card-link">
